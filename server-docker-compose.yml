@@ -15,10 +15,15 @@ services:
     image: zenko/cloudserver:latest
     container_name: kan-s3
     command: >
-      sh -c 'mkdir -p /data/data /data/meta && node -e "const httpProxy = require(\"http-proxy\"); const http = require(\"http\"); const proxy = httpProxy.createProxyServer({ target: \"http://127.0.0.1:8000\", changeOrigin: true }); http.createServer((req, res) => proxy.web(req, res)).listen(9000);" & yarn start'
+      bash -c '
+        mkdir -p /data/data /data/meta
+        node -e "const net=require(\"net\");net.createServer(s=>{const c=net.connect(8000,\"127.0.0.1\");s.pipe(c);c.pipe(s);s.on(\"error\",()=>{});c.on(\"error\",()=>{});}).listen(9000);" &
+        exec /usr/src/app/docker-entrypoint.sh yarn start
+      '
     environment:
       - SCALITY_ACCESS_KEY_ID=${S3_ACCESS_KEY_ID}
       - SCALITY_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY}
+      - ENDPOINT=kan.parchlinux.com,kan-minio,kan-s3,s3,localhost,127.0.0.1
       - S3DATAPATH=/data/data
       - S3METADATAPATH=/data/meta
     volumes:

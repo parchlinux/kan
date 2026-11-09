@@ -7,7 +7,7 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { env } from "next-runtime-env";
 
-export function createS3Client() {
+export function createS3Client(endpointOverride?: string) {
   const region =
     process.env.S3_REGION === "" ? undefined : process.env.S3_REGION;
   const credentials =
@@ -24,9 +24,17 @@ export function createS3Client() {
   // that don't care about region work without forcing operators to
   // set a meaningless value. Real AWS S3 users should still set
   // S3_REGION explicitly to their bucket's actual region.
+  // Prefer S3_INTERNAL_ENDPOINT for direct container-to-container calls,
+  // falling back to public S3_ENDPOINT.
+  const endpoint =
+    endpointOverride ??
+    process.env.S3_INTERNAL_ENDPOINT ??
+    process.env.S3_ENDPOINT ??
+    "";
+
   return new S3Client({
     region: region ?? "us-east-1",
-    endpoint: process.env.S3_ENDPOINT ?? "",
+    endpoint,
     forcePathStyle: process.env.S3_FORCE_PATH_STYLE === "true",
     credentials,
     // Browser uploads do not carry the SDK-computed optional checksum after the
@@ -43,7 +51,7 @@ export async function generateUploadUrl(
   contentType: string,
   expiresIn = 3600,
 ) {
-  const client = createS3Client();
+  const client = createS3Client(process.env.S3_ENDPOINT);
   return getSignedUrl(
     client,
     new PutObjectCommand({
@@ -61,7 +69,7 @@ export async function generateDownloadUrl(
   key: string,
   expiresIn = 3600,
 ) {
-  const client = createS3Client();
+  const client = createS3Client(process.env.S3_ENDPOINT);
   return getSignedUrl(
     client,
     new GetObjectCommand({
