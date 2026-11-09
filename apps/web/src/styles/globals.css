@@ -2,8 +2,56 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: "Estedad";
+  src: url("/fonts/Estedad-Light.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Estedad";
+  src: url("/fonts/Estedad-Medium.woff2") format("woff2");
+  font-weight: 400 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Estedad";
+  src: url("/fonts/Estedad-Bold.woff2") format("woff2");
+  font-weight: 700 800;
+  font-style: normal;
+  font-display: swap;
+}
+
 html {
   font-size: 14px;
+}
+
+/* BiDi (Bidirectional) Text Support for Persian, Arabic, and mixed text */
+[dir="auto"],
+input:not([type="password"]):not([type="email"]):not([type="url"]):not([type="number"]),
+textarea,
+[contenteditable="true"],
+.prose p,
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose li,
+.prose blockquote,
+.tiptap p,
+.tiptap h1,
+.tiptap h2,
+.tiptap h3,
+.tiptap li,
+.tiptap blockquote,
+.plain-text-editor,
+.plain-text-editor p {
+  unicode-bidi: plaintext;
+  text-align: start;
 }
 
 [contenteditable="true"]:empty:before {
@@ -11,6 +59,7 @@ html {
   display: block;
   color: #707070;
   font-size: 0.8rem;
+  text-align: start;
 }
 
 .gradient-border::before {

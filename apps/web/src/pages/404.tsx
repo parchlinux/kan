@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
@@ -8,13 +9,20 @@ import PatternedBackground from "~/components/PatternedBackground";
 export default function NotFoundPage() {
   return (
     <>
-      <PageHead title={t`404 - Page Not Found | kan.bn`} />
+      <PageHead title={t`404 - Page Not Found | Parch Kanban`} />
       <main className="h-screen bg-light-100 pt-20 dark:bg-dark-50 sm:pt-0">
         <div className="justify-top flex h-full flex-col items-center px-4 sm:justify-center">
           <div className="z-10 flex w-full flex-col items-center">
-            <Link href="/">
-              <h1 className="mb-6 text-lg font-bold tracking-tight text-light-1000 dark:text-dark-1000">
-                kan.bn
+            <Link href="/" className="mb-6 flex items-center gap-2">
+              <Image
+                src="/logo.svg"
+                alt="Parch Linux"
+                width={24}
+                height={36}
+                className="h-8 w-auto"
+              />
+              <h1 className="text-xl font-bold tracking-tight text-light-1000 dark:text-dark-1000">
+                Parch Kanban
               </h1>
             </Link>
             <p className="mb-4 text-8xl font-bold tracking-tight text-light-1000 dark:text-dark-1000">

@@ -429,6 +429,7 @@ export default function CardPage({ isTemplate }: { isTemplate?: boolean }) {
                     <div>
                       <textarea
                         id="title"
+                        dir="auto"
                         {...register("title")}
                         onBlur={canEdit ? handleSubmit(onSubmit) : undefined}
                         rows={1}

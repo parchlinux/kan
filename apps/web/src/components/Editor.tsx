@@ -478,7 +478,18 @@ export default function Editor({
     {
       extensions: [
         StarterKit.configure({
-          heading: disableHeadings ? false : undefined,
+          paragraph: {
+            HTMLAttributes: {
+              dir: "auto",
+            },
+          },
+          heading: disableHeadings
+            ? false
+            : {
+                HTMLAttributes: {
+                  dir: "auto",
+                },
+              },
         }),
         Link.configure({
           openOnClick: true,
@@ -628,9 +639,19 @@ export default function Editor({
       <style jsx global>{`
         .tiptap p.is-empty::before {
           content: attr(data-placeholder);
-          float: left;
+          float: inline-start;
+          text-align: start;
           height: 0;
           pointer-events: none;
+        }
+        .tiptap p,
+        .tiptap h1,
+        .tiptap h2,
+        .tiptap h3,
+        .tiptap li,
+        .tiptap blockquote {
+          unicode-bidi: plaintext;
+          text-align: start;
         }
         .tiptap p {
           margin: 0 0 1rem 0 !important;

@@ -25,8 +25,8 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata = {
-  title: "Kan",
-  description: "The open source Trello alternative",
+  title: "Parch Kanban",
+  description: "Fast, elegant project management for Parch Linux",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
@@ -67,7 +67,7 @@ const MyApp: AppType = ({ Component, pageProps }: AppPropsWithLayout) => {
     <>
       <style jsx global>{`
         html {
-          font-family: ${jakarta.style.fontFamily};
+          font-family: ${jakarta.style.fontFamily}, Estedad, Vazirmatn, system-ui, -apple-system, sans-serif;
         }
         body {
           position: relative;

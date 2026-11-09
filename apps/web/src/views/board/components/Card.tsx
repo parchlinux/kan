@@ -91,7 +91,9 @@ const Card = ({
           {ticketNumber}
         </span>
       )}
-      <span className="break-words">{title}</span>
+      <span className="break-words" dir="auto">
+        {title}
+      </span>
       {labels.length ||
       members.length ||
       cardSummary.checklistItemCount > 0 ||

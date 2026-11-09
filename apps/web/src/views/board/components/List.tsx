@@ -121,6 +121,7 @@ export default function List({
           <input
             id="name"
             type="text"
+            dir="auto"
             aria-label={t`List name`}
             {...register("name")}
             onBlur={handleSubmit(onSubmit)}

@@ -153,6 +153,7 @@ const NewChecklistItemForm = ({
         <div className="flex-1 pr-7">
           <ContentEditable
             id={`checklist-item-input-${checklistPublicId}`}
+            dir="auto"
             tabIndex={readOnly ? -1 : 0}
             placeholder={t`Add an item...`}
             html={title}

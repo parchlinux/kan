@@ -39,6 +39,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     if (contentEditable) {
       return (
         <ContentEditable
+          dir="auto"
           placeholder={props.placeholder}
           html={value ?? ""}
           onChange={onChange}
@@ -61,6 +62,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           )}
           <input
             ref={ref}
+            dir={type === "password" || type === "email" ? "ltr" : "auto"}
             value={value}
             onChange={onChange}
             type={type === "password" && showPassword ? "text" : type}

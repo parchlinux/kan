@@ -74,10 +74,20 @@ const config = {
   },
 
   async rewrites() {
+    const internalS3 =
+      process.env.S3_INTERNAL_ENDPOINT || "http://kan-minio:9000";
     return [
       {
         source: "/settings",
         destination: "/settings/account",
+      },
+      {
+        source: "/avatars/:path*",
+        destination: `${internalS3}/avatars/:path*`,
+      },
+      {
+        source: "/attachments/:path*",
+        destination: `${internalS3}/attachments/:path*`,
       },
     ];
   },

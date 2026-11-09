@@ -7,17 +7,11 @@ name: Docker
 
 on:
   push:
-    # Only trigger on tags (releases), not main branch pushes
-    # Main branch builds are handled by workflow_run after Translate completes
+    branches: ["main"]
     tags: ["v*.*.*"]
   pull_request:
     branches: ["main"]
-  workflow_run:
-    workflows: ["Translate"]
-    types: [completed]
-    branches: [main]
-    # Docker builds after Translate completes (success or failure)
-    # This ensures Docker always has the latest translations
+  workflow_dispatch:
 
 concurrency:
   group: docker-build-${{ github.ref }}
@@ -33,15 +27,13 @@ env:
   MIGRATE_IMAGE_NAME: ${{ github.repository }}-migrate
 
 jobs:
-  # Each architecture builds on its own native runner, so arm64 no longer runs
-  # under QEMU. The halves are pushed by digest and joined into one tag by merge.
   build:
     strategy:
       fail-fast: false
       matrix:
         target: [web, migrate]
-        platform: [linux/amd64, linux/arm64]
-    runs-on: ${{ matrix.platform == 'linux/arm64' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
+        platform: [linux/amd64]
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
@@ -216,7 +208,7 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
-            type=raw,value=latest,enable=${{ github.ref_type == 'tag' }}
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' || github.ref_type == 'tag' }}
             type=raw,value=edge,enable={{is_default_branch}}
 
       # Join the amd64 and arm64 halves into one multi-arch tag
@@ -241,6 +233,7 @@ jobs:
       # transparency data even for private images, pass --force to cosign below.
       # https://github.com/sigstore/cosign
       - name: Sign the published Docker image
+        continue-on-error: true
         env:
           # https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-an-intermediate-environment-variable
           TAGS: ${{ steps.meta.outputs.tags }}

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { Button } from "@headlessui/react";
@@ -164,11 +165,28 @@ export default function SideNavigation({
       >
         <div>
           <div className="hidden h-[45px] items-center justify-between pb-3 md:flex">
-            {!isCollapsed && (
-              <Link href="/" className="block">
-                <h1 className="pl-2 text-[16px] font-bold tracking-tight text-neutral-900 dark:text-dark-1000">
-                  kan.bn
+            {!isCollapsed ? (
+              <Link href="/" className="flex items-center gap-2 pl-2">
+                <Image
+                  src={isDarkMode ? "/logo-white.svg" : "/logo.svg"}
+                  alt="Parch Linux"
+                  width={16}
+                  height={24}
+                  className="h-6 w-auto"
+                />
+                <h1 className="text-[16px] font-bold tracking-tight text-neutral-900 dark:text-dark-1000">
+                  Parch Kanban
                 </h1>
+              </Link>
+            ) : (
+              <Link href="/" className="flex items-center justify-center py-1">
+                <Image
+                  src={isDarkMode ? "/logo-white.svg" : "/logo.svg"}
+                  alt="Parch Linux"
+                  width={16}
+                  height={24}
+                  className="h-5 w-auto"
+                />
               </Link>
             )}
             <Button

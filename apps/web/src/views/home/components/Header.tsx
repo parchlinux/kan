@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { t } from "@lingui/core/macro";
 import { useEffect, useState } from "react";
@@ -74,9 +75,16 @@ const Header = ({ isLoggedIn }: { isLoggedIn: boolean }) => {
         <div className="flex h-[4rem] min-h-[4rem] w-full border-b border-light-300 bg-light-50/80 px-5 py-2 align-middle opacity-100 shadow-sm backdrop-blur-[10px] transition-all duration-500 dark:border-dark-300 dark:bg-dark-50/90">
           <div className="mx-auto flex w-full max-w-[1100px] items-center justify-between lg:px-4">
             <div className="my-auto flex items-center justify-between">
-              <Link href="/">
-                <h1 className="text-lg font-bold tracking-tight text-neutral-900 dark:text-dark-1000 lg:w-[200px]">
-                  kan.bn
+              <Link href="/" className="flex items-center gap-2">
+                <Image
+                  src="/logo.svg"
+                  alt="Parch Linux"
+                  width={18}
+                  height={28}
+                  className="h-6 w-auto"
+                />
+                <h1 className="text-lg font-bold tracking-tight text-neutral-900 dark:text-dark-1000">
+                  Parch Kanban
                 </h1>
               </Link>
             </div>

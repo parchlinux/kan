@@ -22,38 +22,32 @@ const StatusMarker = () => (
 const Footer = () => {
   const navigation = {
     documentation: [
-      { name: t`Getting started`, href: "https://docs.kan.bn/introduction" },
-      {
-        name: t`Importing from Trello`,
-        href: "https://docs.kan.bn/imports/trello",
-      },
-      {
-        name: t`API Reference`,
-        href: "https://docs.kan.bn/api-reference/introduction",
-      },
+      { name: t`Parch Linux`, href: "https://parchlinux.com" },
+      { name: t`Wiki`, href: "https://wiki.parchlinux.com" },
+      { name: t`Forum`, href: "https://forum.parchlinux.com" },
+      { name: t`GitHub`, href: "https://github.com/parchlinux" },
     ],
     company: [
-      { name: t`Roadmap`, href: "/kan/roadmap" },
-      { name: t`GitHub`, href: "https://github.com/kanbn/kan" },
+      { name: t`Parch Developer`, href: "https://developer.parchlinux.com" },
+      { name: t`Parch Apps`, href: "https://apps.parchlinux.com" },
       {
-        name: t`Discussions`,
-        href: "https://github.com/kanbn/kan/discussions",
+        name: t`Kanban Repository`,
+        href: "https://github.com/parchlinux/kan",
       },
-      { name: t`Contact`, href: "mailto:support@kan.bn" },
-      { name: t`OSS Friends`, href: "/oss-friends" },
+      { name: t`Support`, href: "https://forum.parchlinux.com" },
     ],
     legal: [
       { name: t`Terms of service`, href: "/terms" },
       { name: t`Privacy policy`, href: "/privacy" },
       {
-        name: t`License`,
-        href: "https://github.com/kanbn/kan?tab=AGPL-3.0-1-ov-file#readme",
+        name: t`License (AGPL-3.0)`,
+        href: "https://github.com/parchlinux/kan?tab=AGPL-3.0-1-ov-file#readme",
       },
     ],
     resources: [
-      { name: t`Features`, href: "/#features" },
-      { name: t`Pricing`, href: "/#pricing" },
-      { name: t`FAQs`, href: "/#faq" },
+      { name: t`Boards`, href: "/boards" },
+      { name: t`Templates`, href: "/templates" },
+      { name: t`Parch Community`, href: "https://parchlinux.com" },
     ],
   };
 
@@ -63,7 +57,7 @@ const Footer = () => {
         <div className="xl:grid xl:grid-cols-3 xl:gap-8">
           <div>
             <div className="mb-2 flex items-center gap-2">
-              <Link href="https://github.com/kanbn/kan" target="_blank">
+              <Link href="https://github.com/parchlinux/kan" target="_blank">
                 <FaGithub className="h-8 w-8 rounded-lg border border-light-300 p-1.5 text-light-1000 hover:bg-light-100 dark:border-dark-300 dark:text-dark-1000 dark:hover:bg-dark-100" />
               </Link>
             </div>

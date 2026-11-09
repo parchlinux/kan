@@ -19,7 +19,7 @@ export default function HomeView() {
 
   return (
     <Layout>
-      <PageHead title="Kan.bn | The open source alternative to Trello" />
+      <PageHead title="Parch Kanban | Project Management for Parch Linux" />
       <div className="flex h-full w-full flex-col lg:pt-[5rem]">
         <div className="w-full pb-10 pt-32 lg:py-32">
           <div className="my-10 flex h-full w-full animate-fade-down flex-col items-center justify-center px-4">
@@ -29,56 +29,36 @@ export default function HomeView() {
 
                 <div className="relative z-10 rounded-full bg-light-50 dark:bg-dark-50">
                   <Link
-                    href="https://github.com/kanbn/kan"
+                    href="https://github.com/parchlinux/kan"
                     rel="noopener noreferrer"
                     target="_blank"
                     className="flex items-center gap-2 px-4 py-1 text-center text-xs text-light-1000 dark:text-dark-1000 lg:text-sm"
                   >
-                    {t`Star on Github`}
+                    {t`Parch Linux on GitHub`}
                     <IoLogoGithub size={20} />
                   </Link>
                 </div>
               </div>
-
-              {/* <div className="relative overflow-hidden rounded-full bg-gradient-to-b from-light-300 to-light-400 p-[2px] dark:from-dark-300 dark:to-dark-400">
-                <div className="relative z-10 rounded-full bg-light-50 dark:bg-dark-50">
-                  <Link
-                    href="https://news.ycombinator.com/item?id=44157177"
-                    rel="noopener noreferrer"
-                    target="_blank"
-                    className="flex items-center gap-2 px-4 py-1 text-center text-xs text-light-1000 dark:text-dark-1000 lg:text-sm"
-                  >
-                    {t`#1 Hacker News`}
-                    <div className="relative">
-                      <div className="absolute inset-1 bg-white" />
-                      <IoLogoHackernews
-                        size={20}
-                        className="relative text-orange-500"
-                      />
-                    </div>
-                  </Link>
-                </div>
-              </div> */}
             </div>
 
             <p className="mt-2 text-center text-4xl font-bold text-light-1000 dark:text-dark-1000 lg:text-5xl">
               <Trans>
-                The open source <br /> alternative to Trello
+                Project management <br /> for Parch Linux
               </Trans>
             </p>
 
             <p className="text-md mt-3 max-w-[450px] text-center text-light-950 dark:text-dark-900 lg:max-w-[600px] lg:text-lg">
-              {t`A powerful, flexible kanban app that helps you organise work, track progress, and deliver results—all in one place.`}
+              {t`A flexible kanban app designed for Parch Linux teams to organize tasks, track progress, and collaborate in one place.`}
             </p>
 
             <div className="mt-6 flex gap-2">
-              <Button href="/signup">{t`Get started on Cloud`}</Button>
+              <Button href="/signup">{t`Get started`}</Button>
               <Button
                 variant="secondary"
-                href="https://github.com/kanbn/kan"
+                href="https://github.com/parchlinux/kan"
                 openInNewTab
               >
-                {t`Self host with Github`}
+                {t`Source on GitHub`}
               </Button>
             </div>
             <p className="mt-4 text-center text-sm text-light-950 dark:text-dark-900">

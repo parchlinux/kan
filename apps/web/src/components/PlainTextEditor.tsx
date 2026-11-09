@@ -51,6 +51,11 @@ export default function PlainTextEditor({
     {
       extensions: [
         StarterKit.configure({
+          paragraph: {
+            HTMLAttributes: {
+              dir: "auto",
+            },
+          },
           bold: false,
           italic: false,
           strike: false,
@@ -112,13 +117,16 @@ export default function PlainTextEditor({
       <style jsx global>{`
         .plain-text-editor p.is-empty::before {
           content: attr(data-placeholder);
-          float: left;
+          float: inline-start;
+          text-align: start;
           height: 0;
           pointer-events: none;
           color: var(--placeholder-color, #9ca3af);
         }
         .plain-text-editor .tiptap p {
           margin: 0 !important;
+          unicode-bidi: plaintext;
+          text-align: start;
         }
       `}</style>
       <EditorContent
