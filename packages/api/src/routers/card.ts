@@ -59,6 +59,10 @@ export const cardRouter = createTRPCRouter({
         memberPublicIds: z.array(z.string().min(12)),
         position: z.enum(["start", "end"]),
         dueDate: z.date().nullable().optional(),
+        priority: z
+          .enum(["urgent", "high", "medium", "low", "none"])
+          .optional(),
+        storyPoints: z.number().int().min(0).max(1000).nullable().optional(),
       }),
     )
     .output(cardCreateResponseSchema)
@@ -151,6 +155,8 @@ export const cardRouter = createTRPCRouter({
         workspaceId: list.workspaceId,
         position: input.position,
         dueDate: input.dueDate ?? null,
+        priority: input.priority,
+        storyPoints: input.storyPoints,
       });
 
       const newCardId = newCard.id;
@@ -995,6 +1001,10 @@ export const cardRouter = createTRPCRouter({
         index: z.number().optional(),
         listPublicId: z.string().min(12).optional(),
         dueDate: z.date().nullable().optional(),
+        priority: z
+          .enum(["urgent", "high", "medium", "low", "none"])
+          .optional(),
+        storyPoints: z.number().int().min(0).max(1000).nullable().optional(),
       }),
     )
     .output(cardUpdateResponseSchema)
@@ -1087,6 +1097,8 @@ export const cardRouter = createTRPCRouter({
             description: string | null;
             publicId: string;
             dueDate: Date | null;
+            priority?: string | null;
+            storyPoints?: number | null;
           }
         | undefined;
 
@@ -1102,7 +1114,9 @@ export const cardRouter = createTRPCRouter({
       if (
         input.title ||
         normalizedDescription !== undefined ||
-        input.dueDate !== undefined
+        input.dueDate !== undefined ||
+        input.priority !== undefined ||
+        input.storyPoints !== undefined
       ) {
         result = await cardRepo.update(
           ctx.db,
@@ -1112,6 +1126,10 @@ export const cardRouter = createTRPCRouter({
               description: normalizedDescription,
             }),
             ...(input.dueDate !== undefined && { dueDate: input.dueDate }),
+            ...(input.priority !== undefined && { priority: input.priority }),
+            ...(input.storyPoints !== undefined && {
+              storyPoints: input.storyPoints,
+            }),
           },
           { cardPublicId: input.cardPublicId },
         );

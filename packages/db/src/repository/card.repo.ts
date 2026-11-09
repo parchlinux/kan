@@ -45,6 +45,8 @@ export const create = async (
     workspaceId: number;
     position: "start" | "end";
     dueDate?: Date | null;
+    priority?: string | null;
+    storyPoints?: number | null;
   },
 ) => {
   return db.transaction(async (tx) => {
@@ -106,12 +108,16 @@ export const create = async (
         index: index,
         cardNumber,
         dueDate: cardInput.dueDate ?? null,
+        priority: cardInput.priority ?? "none",
+        storyPoints: cardInput.storyPoints ?? null,
       })
       .returning({
         id: cards.id,
         listId: cards.listId,
         publicId: cards.publicId,
         cardNumber: cards.cardNumber,
+        priority: cards.priority,
+        storyPoints: cards.storyPoints,
       });
 
     if (!result[0]) throw new Error("Unable to create card");
@@ -323,6 +329,8 @@ export const update = async (
     title?: string;
     description?: string | null;
     dueDate?: Date | null;
+    priority?: string | null;
+    storyPoints?: number | null;
   },
   args: {
     cardPublicId: string;
@@ -331,9 +339,17 @@ export const update = async (
   const [result] = await db
     .update(cards)
     .set({
-      title: cardInput.title,
-      description: cardInput.description,
-      dueDate: cardInput.dueDate !== undefined ? cardInput.dueDate : undefined,
+      ...(cardInput.title !== undefined ? { title: cardInput.title } : {}),
+      ...(cardInput.description !== undefined
+        ? { description: cardInput.description }
+        : {}),
+      ...(cardInput.dueDate !== undefined ? { dueDate: cardInput.dueDate } : {}),
+      ...(cardInput.priority !== undefined
+        ? { priority: cardInput.priority }
+        : {}),
+      ...(cardInput.storyPoints !== undefined
+        ? { storyPoints: cardInput.storyPoints }
+        : {}),
       updatedAt: new Date(),
     })
     .where(and(eq(cards.publicId, args.cardPublicId), isNull(cards.deletedAt)))
@@ -343,6 +359,8 @@ export const update = async (
       title: cards.title,
       description: cards.description,
       dueDate: cards.dueDate,
+      priority: cards.priority,
+      storyPoints: cards.storyPoints,
     });
 
   return result;
@@ -378,6 +396,8 @@ export const getByPublicId = (db: dbClient, cardPublicId: string) => {
       description: true,
       listId: true,
       dueDate: true,
+      priority: true,
+      storyPoints: true,
     },
     with: {
       list: {
@@ -608,6 +628,8 @@ export const getWithListAndMembersByPublicId = async (
       createdBy: true,
       cardNumber: true,
       index: true,
+      priority: true,
+      storyPoints: true,
     },
     with: {
       labels: {

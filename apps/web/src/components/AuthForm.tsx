@@ -346,9 +346,27 @@ export function Auth({
 
   return (
     <div className="space-y-6">
-      {socialProviders?.length !== 0 && (
-        <div className="space-y-2">
-          {Object.entries(availableSocialProviders).map(([key, provider]) => {
+      <div className="space-y-2">
+        <Button
+          key="parch-forum"
+          onClick={() => {
+            window.location.href = `/api/auth/discourse?callbackURL=${encodeURIComponent(callbackURL)}`;
+          }}
+          iconLeft={
+            <img
+              src="/logo.svg"
+              alt="Parch"
+              className="h-4 w-4"
+            />
+          }
+          fullWidth
+          size="lg"
+          className="border border-[#059669]/30 bg-[#059669]/10 font-semibold text-[#059669] hover:bg-[#059669]/20 dark:border-[#059669]/40 dark:bg-[#059669]/20 dark:text-[#34d399] dark:hover:bg-[#059669]/30"
+        >
+          <Trans>Continue with Parch Forum</Trans>
+        </Button>
+        {socialProviders?.length !== 0 &&
+          Object.entries(availableSocialProviders).map(([key, provider]) => {
             if (!socialProviders?.includes(key)) {
               return null;
             }
@@ -368,50 +386,16 @@ export function Auth({
               </Button>
             );
           })}
-        </div>
-      )}
-      {!(isCredentialsEnabled || isMagicLinkAvailable) &&
-        socialProviders?.length === 0 && (
-          <div className="space-y-4">
-            <div className="flex w-full items-center gap-4">
-              <div className="h-[1px] w-1/3 bg-light-600 dark:bg-dark-600" />
-              <span className="text-center text-sm text-light-900 dark:text-dark-900">
-                {t`No authentication methods are currently available`}
-              </span>
-              <div className="h-[1px] w-1/3 bg-light-600 dark:bg-dark-600" />
-            </div>
-            {!isCloudEnv && (
-              <p className="text-center text-xs text-light-900 dark:text-dark-900">
-                <Trans>
-                  Self-hosting? Set{" "}
-                  <code className="font-mono">{CREDENTIALS_ENV_HINT}</code> to
-                  enable email and password sign in, or configure an OAuth
-                  provider. See the{" "}
-                  <Link
-                    href="https://docs.kan.bn/guides/self-hosting/introduction"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-blue-600 underline dark:text-blue-300"
-                  >
-                    self-hosting guide
-                  </Link>
-                  .
-                </Trans>
-              </p>
-            )}
-          </div>
-        )}
+      </div>
       {(isCredentialsEnabled || isMagicLinkAvailable) && (
         <form onSubmit={handleSubmit(onSubmit)}>
-          {socialProviders?.length !== 0 && (
-            <div className="mb-[1.5rem] flex w-full items-center gap-4">
-              <div className="h-[1px] w-full bg-light-600 dark:bg-dark-600" />
-              <span className="text-sm text-light-900 dark:text-dark-900">
-                {t`or`}
-              </span>
-              <div className="h-[1px] w-full bg-light-600 dark:bg-dark-600" />
-            </div>
-          )}
+          <div className="mb-[1.5rem] flex w-full items-center gap-4">
+            <div className="h-[1px] w-full bg-light-600 dark:bg-dark-600" />
+            <span className="text-sm text-light-900 dark:text-dark-900">
+              {t`or`}
+            </span>
+            <div className="h-[1px] w-full bg-light-600 dark:bg-dark-600" />
+          </div>
           <div className="space-y-2">
             {isSignUp && isCredentialsEnabled && (
               <div>

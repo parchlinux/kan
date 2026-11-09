@@ -132,15 +132,60 @@ export async function sendWebhookToUrl(
     return { success: false, error: result.error.issues[0]?.message };
   }
 
-  const body = JSON.stringify(payload);
+  const isDiscord =
+    url.includes("discord.com/api/webhooks") ||
+    url.includes("discordapp.com/api/webhooks");
+  const isTelegram = url.includes("api.telegram.org/bot");
+
+  let body: string;
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     "X-Webhook-Event": payload.event,
     "X-Webhook-Timestamp": payload.timestamp,
   };
 
-  if (secret) {
-    headers["X-Webhook-Signature"] = generateSignature(body, secret);
+  if (isDiscord) {
+    const eventName = payload.event.replace(/\./g, " ").toUpperCase();
+    const cardTitle = payload.data.card.title;
+    const rawDesc = payload.data.card.description || "No description";
+    const cardDesc =
+      rawDesc.length > 500 ? `${rawDesc.slice(0, 500)}...` : rawDesc;
+    const boardName = payload.data.board?.name || "General";
+    const listName = payload.data.list?.name || "List";
+    const userName = payload.data.user?.name || "Kanban User";
+
+    body = JSON.stringify({
+      username: "Parch Kanban",
+      embeds: [
+        {
+          title: `[${eventName}] ${cardTitle}`,
+          description: cardDesc,
+          color: 0x059669,
+          fields: [
+            { name: "Board", value: boardName, inline: true },
+            { name: "List", value: listName, inline: true },
+            { name: "By", value: userName, inline: true },
+          ],
+          timestamp: payload.timestamp,
+        },
+      ],
+    });
+  } else if (isTelegram) {
+    const parsedUrl = new URL(url);
+    const chatId = parsedUrl.searchParams.get("chat_id");
+    const eventName = payload.event.replace(/\./g, " ").toUpperCase();
+    const text = `📌 *Parch Kanban Alert*\n\n*Action:* ${eventName}\n*Card:* ${payload.data.card.title}\n*Board:* ${payload.data.board?.name ?? "-"}\n*List:* ${payload.data.list?.name ?? "-"}\n*User:* ${payload.data.user?.name ?? "User"}`;
+
+    body = JSON.stringify({
+      ...(chatId ? { chat_id: chatId } : {}),
+      text,
+      parse_mode: "Markdown",
+    });
+  } else {
+    body = JSON.stringify(payload);
+    if (secret) {
+      headers["X-Webhook-Signature"] = generateSignature(body, secret);
+    }
   }
 
   const controller = new AbortController();

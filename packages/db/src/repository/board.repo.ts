@@ -274,6 +274,7 @@ export const getByPublicId = async (
           name: true,
           boardId: true,
           index: true,
+          maxCards: true,
         },
         with: {
           cards: {
@@ -286,6 +287,8 @@ export const getByPublicId = async (
               index: true,
               dueDate: true,
               cardNumber: true,
+              priority: true,
+              storyPoints: true,
             },
             with: {
               labels: {
@@ -594,6 +597,7 @@ export const getBySlug = async (
           name: true,
           boardId: true,
           index: true,
+          maxCards: true,
         },
         with: {
           cards: {
@@ -605,6 +609,8 @@ export const getBySlug = async (
               index: true,
               dueDate: true,
               cardNumber: true,
+              priority: true,
+              storyPoints: true,
             },
             with: {
               labels: {

@@ -25,6 +25,8 @@ const Card = ({
   comments,
   attachments,
   dueDate,
+  priority,
+  storyPoints,
 }: {
   title: string;
   ticketNumber?: string | null;
@@ -55,6 +57,8 @@ const Card = ({
   comments: { publicId: string }[];
   attachments: { publicId: string }[];
   dueDate?: Date | null;
+  priority?: string | null;
+  storyPoints?: number | null;
 }) => {
   const { dateLocale } = useLocalisation();
   const showYear = dueDate ? !isSameYear(dueDate, new Date()) : false;
@@ -86,11 +90,37 @@ const Card = ({
 
   return (
     <div className="flex flex-col overflow-hidden rounded-md border border-light-200 bg-light-50 px-3 py-2 text-sm text-neutral-900 dark:border-dark-200 dark:bg-dark-200 dark:text-dark-1000 dark:hover:bg-dark-300">
-      {ticketNumber && (
-        <span className="mb-1 text-xs text-light-700 dark:text-dark-800">
-          {ticketNumber}
-        </span>
-      )}
+      <div className="mb-1 flex items-center justify-between">
+        {ticketNumber ? (
+          <span className="text-xs text-light-700 dark:text-dark-800">
+            {ticketNumber}
+          </span>
+        ) : <span />}
+        <div className="flex items-center gap-1.5">
+          {storyPoints != null && (
+            <span className="rounded bg-light-200 px-1.5 py-0.5 text-[10px] font-semibold text-light-900 dark:bg-dark-400 dark:text-dark-900">
+              {storyPoints} pts
+            </span>
+          )}
+          {priority && priority !== "none" && (
+            <span
+              className={twMerge(
+                "rounded px-1.5 py-0.5 text-[10px] font-semibold capitalize",
+                priority === "urgent" &&
+                  "bg-red-100 text-red-700 dark:bg-red-950/80 dark:text-red-300",
+                priority === "high" &&
+                  "bg-amber-100 text-amber-700 dark:bg-amber-950/80 dark:text-amber-300",
+                priority === "medium" &&
+                  "bg-blue-100 text-blue-700 dark:bg-blue-950/80 dark:text-blue-300",
+                priority === "low" &&
+                  "bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300",
+              )}
+            >
+              {priority}
+            </span>
+          )}
+        </div>
+      </div>
       <span className="break-words" dir="auto">
         {title}
       </span>

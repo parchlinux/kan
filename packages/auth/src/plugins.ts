@@ -12,6 +12,7 @@ import { createLogger } from "@kan/logger";
 import { generateUID } from "@kan/shared/utils";
 import { createStripeClient } from "@kan/stripe";
 
+import { discoursePlugin } from "./discourse";
 import { socialProvidersPlugin } from "./providers";
 
 const log = createLogger("auth");
@@ -66,6 +67,7 @@ async function cancelWorkspaceAccess(
 
 export function createPlugins(db: dbClient) {
   return [
+    discoursePlugin(db),
     socialProvidersPlugin(),
     ...(process.env.NEXT_PUBLIC_KAN_ENV === "cloud"
       ? [

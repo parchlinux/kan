@@ -474,12 +474,26 @@ export const boardRouter = createTRPCRouter({
       }
 
       if (input.labels.length) {
+        const parchLabelColors: Record<string, string> = {
+          packaging: "#9333ea",
+          "iso-build": "#2563eb",
+          installer: "#06b6d4",
+          kernel: "#059669",
+          mirror: "#d97706",
+          bug: "#e11d48",
+          documentation: "#4f46e5",
+          security: "#dc2626",
+        };
+
         const labelInputs = input.labels.map((label, index) => ({
           publicId: generateUID(),
           name: label,
           boardId: result.id,
           createdBy: userId,
-          colourCode: colours[index % colours.length]?.code ?? "#0d9488",
+          colourCode:
+            parchLabelColors[label.toLowerCase()] ??
+            colours[index % colours.length]?.code ??
+            "#0d9488",
         }));
 
         await labelRepo.bulkCreate(ctx.db, labelInputs);

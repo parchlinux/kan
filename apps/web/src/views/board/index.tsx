@@ -1034,6 +1034,10 @@ export default function BoardPage({ isTemplate }: { isTemplate?: boolean }) {
                           <List
                             key={`list.${list.publicId}`}
                             list={list}
+                            cardsCount={
+                              (cardsByList[list.publicId] ?? list.cards ?? [])
+                                .length
+                            }
                             setSelectedPublicListId={(publicListId) => {
                               setNewCardInitialDueDate(null);
                               setSelectedPublicListId(publicListId);

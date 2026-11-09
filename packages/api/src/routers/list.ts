@@ -173,6 +173,7 @@ export const listRouter = createTRPCRouter({
         listPublicId: z.string().min(12),
         name: z.string().min(1).optional(),
         index: z.number().optional(),
+        maxCards: z.number().int().min(0).nullable().optional(),
       }),
     )
     .output(listUpdateResponseSchema)
@@ -209,12 +210,17 @@ export const listRouter = createTRPCRouter({
         type: list.boardType,
       });
 
-      let result: { name: string; publicId: string } | undefined;
+      let result:
+        | { name: string; publicId: string; maxCards?: number | null }
+        | undefined;
 
-      if (input.name) {
+      if (input.name !== undefined || input.maxCards !== undefined) {
         result = await listRepo.update(
           ctx.db,
-          { name: input.name },
+          {
+            name: input.name,
+            maxCards: input.maxCards,
+          },
           { listPublicId: input.listPublicId },
         );
       }

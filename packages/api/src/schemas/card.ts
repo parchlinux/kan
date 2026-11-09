@@ -17,6 +17,8 @@ export const cardUpdateResponseSchema = z.object({
   title: z.string(),
   description: z.string().nullable(),
   dueDate: z.date().nullable(),
+  priority: z.string().nullable().optional(),
+  storyPoints: z.number().nullable().optional(),
 });
 
 // ─── Comment responses ───────────────────────────────────────
@@ -49,6 +51,8 @@ export const cardDetailSchema = z.object({
   cardNumber: z.number().nullable(),
   index: z.number(),
   dueDate: z.date().nullable(),
+  priority: z.string().nullable().optional(),
+  storyPoints: z.number().nullable().optional(),
   createdBy: z.string().nullable(),
   labels: z.array(labelSchema),
   attachments: z.array(

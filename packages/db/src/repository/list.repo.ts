@@ -213,6 +213,7 @@ export const getByPublicId = async (db: dbClient, listPublicId: string) => {
       name: true,
       boardId: true,
       index: true,
+      maxCards: true,
     },
     with: {
       board: {
@@ -257,19 +258,25 @@ export const getWithCardsByPublicId = async (
 export const update = async (
   db: dbClient,
   listInput: {
-    name: string;
+    name?: string;
+    maxCards?: number | null;
   },
   args: {
     listPublicId: string;
   },
 ) => {
+  const updateData: Partial<typeof lists.$inferInsert> = {};
+  if (listInput.name !== undefined) updateData.name = listInput.name;
+  if (listInput.maxCards !== undefined) updateData.maxCards = listInput.maxCards;
+
   const [result] = await db
     .update(lists)
-    .set({ name: listInput.name })
+    .set(updateData)
     .where(and(eq(lists.publicId, args.listPublicId), isNull(lists.deletedAt)))
     .returning({
       publicId: lists.publicId,
       name: lists.name,
+      maxCards: lists.maxCards,
     });
 
   return result;

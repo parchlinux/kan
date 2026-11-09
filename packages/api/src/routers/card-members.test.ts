@@ -309,6 +309,7 @@ describe("card member workspace scoping", () => {
         index: 0,
         workspaceId: 7,
         boardType: "regular",
+        maxCards: null,
       });
       vi.mocked(cardRepo.reorder).mockResolvedValueOnce({
         id: 17,

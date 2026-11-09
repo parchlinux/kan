@@ -12,6 +12,28 @@ export interface Template {
 
 export const getTemplates = (): Template[] => [
   {
+    id: "parch-linux",
+    name: t`Parch Linux Distribution`,
+    lists: [
+      t`Backlog`,
+      t`Packaging & Testing`,
+      t`In Progress`,
+      t`ISO Build`,
+      t`Quality Assurance`,
+      t`Released`,
+    ],
+    labels: [
+      "packaging",
+      "iso-build",
+      "installer",
+      "kernel",
+      "mirror",
+      "bug",
+      "documentation",
+      "security",
+    ],
+  },
+  {
     id: "basic",
     name: t`Basic Kanban`,
     lists: [t`To Do`, t`In Progress`, t`Done`],

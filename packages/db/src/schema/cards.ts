@@ -80,6 +80,8 @@ export const cards = pgTable(
       () => imports.id,
     ),
     dueDate: timestamp("dueDate"),
+    priority: varchar("priority", { length: 20 }).default("none"),
+    storyPoints: integer("storyPoints"),
   },
   (table) => [
     index("card_list_number_idx").on(table.listId, table.cardNumber),

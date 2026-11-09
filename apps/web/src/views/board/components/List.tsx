@@ -1,10 +1,11 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { t } from "@lingui/core/macro";
 import { useForm } from "react-hook-form";
 import {
   HiEllipsisHorizontal,
+  HiOutlineAdjustmentsHorizontal,
   HiOutlinePlusSmall,
   HiOutlineSquaresPlus,
   HiOutlineTrash,
@@ -23,6 +24,7 @@ import { isPlaceholderPublicId } from "~/utils/helpers";
 interface ListProps {
   children: ReactNode;
   list: List;
+  cardsCount?: number;
   setSelectedPublicListId: (publicListId: PublicListId) => void;
 }
 
@@ -30,6 +32,7 @@ interface List {
   publicId: string;
   name: string;
   createdBy?: string | null;
+  maxCards?: number | null;
 }
 
 interface FormValues {
@@ -42,9 +45,11 @@ type PublicListId = string;
 export default function List({
   children,
   list,
+  cardsCount,
   setSelectedPublicListId,
 }: ListProps) {
   const { openModal } = useModal();
+  const utils = api.useUtils();
   const { canCreateCard, canEditList, canDeleteList } = usePermissions();
   const { data: session } = authClient.useSession();
   const isCreator = list.createdBy && session?.user.id === list.createdBy;
@@ -52,13 +57,26 @@ export default function List({
   const canEdit = canEditList || isCreator;
   const canDrag = !isOptimistic && (canEditList || isCreator);
 
+  const [isEditingWip, setIsEditingWip] = useState(false);
+  const [wipValue, setWipValue] = useState(
+    list.maxCards ? String(list.maxCards) : "",
+  );
+
+  const isWipExceeded =
+    !!list.maxCards && cardsCount !== undefined && cardsCount > list.maxCards;
+
   const openNewCardForm = (publicListId: PublicListId) => {
     if (!canCreateCard || isOptimistic) return;
     openModal("NEW_CARD");
     setSelectedPublicListId(publicListId);
   };
 
-  const updateList = api.list.update.useMutation();
+  const updateList = api.list.update.useMutation({
+    onSuccess: () => {
+      utils.board.byId.invalidate();
+      utils.board.bySlug.invalidate();
+    },
+  });
 
   const { register, handleSubmit } = useForm<FormValues>({
     defaultValues: {
@@ -77,6 +95,18 @@ export default function List({
       listPublicId: values.listPublicId,
       name: values.name,
     });
+  };
+
+  const handleSaveWip = () => {
+    setIsEditingWip(false);
+    const parsed = parseInt(wipValue.trim(), 10);
+    const maxCards = isNaN(parsed) || parsed <= 0 ? null : parsed;
+    if (maxCards !== (list.maxCards ?? null)) {
+      updateList.mutate({
+        listPublicId: list.publicId,
+        maxCards,
+      });
+    }
   };
 
   const handleOpenDeleteListConfirmation = () => {
@@ -109,25 +139,39 @@ export default function List({
       style={style}
       {...attributes}
       {...listeners}
-      className={`dark-text-dark-1000 mr-5 h-fit min-w-[18rem] max-w-[18rem] snap-start rounded-md border border-light-400 bg-light-300 py-2 pl-2 pr-1 text-neutral-900 dark:border-dark-300 dark:bg-dark-100 md:snap-align-none ${
-        canDrag ? (isDragging ? "cursor-grabbing" : "cursor-grab") : ""
-      }`}
+      className={`dark-text-dark-1000 mr-5 h-fit min-w-[18rem] max-w-[18rem] snap-start rounded-md border py-2 pl-2 pr-1 text-neutral-900 md:snap-align-none ${
+        isWipExceeded
+          ? "border-red-400 bg-red-50/30 dark:border-red-500/50 dark:bg-red-950/15"
+          : "border-light-400 bg-light-300 dark:border-dark-300 dark:bg-dark-100"
+      } ${canDrag ? (isDragging ? "cursor-grabbing" : "cursor-grab") : ""}`}
     >
       <div className="mb-2 flex justify-between">
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="w-full focus-visible:outline-none"
         >
-          <input
-            id="name"
-            type="text"
-            dir="auto"
-            aria-label={t`List name`}
-            {...register("name")}
-            onBlur={handleSubmit(onSubmit)}
-            readOnly={!canEdit || isOptimistic}
-            className="w-full border-0 bg-transparent px-4 pt-1 text-sm font-medium text-neutral-900 focus:ring-0 focus-visible:outline-none dark:text-dark-1000"
-          />
+          <div className="flex items-center">
+            <input
+              id="name"
+              type="text"
+              dir="auto"
+              aria-label={t`List name`}
+              {...register("name")}
+              onBlur={handleSubmit(onSubmit)}
+              readOnly={!canEdit || isOptimistic}
+              className="w-full border-0 bg-transparent px-4 pt-1 text-sm font-medium text-neutral-900 focus:ring-0 focus-visible:outline-none dark:text-dark-1000"
+            />
+            <span
+              className={`mr-2 whitespace-nowrap text-xs font-semibold ${
+                isWipExceeded
+                  ? "text-red-600 dark:text-red-400"
+                  : "text-light-700 dark:text-dark-700"
+              }`}
+            >
+              {cardsCount ?? 0}
+              {list.maxCards ? `/${list.maxCards}` : ""}
+            </span>
+          </div>
         </form>
         <div className="flex items-center">
           <Tooltip
@@ -154,6 +198,17 @@ export default function List({
                       action: () => openNewCardForm(list.publicId),
                       icon: (
                         <HiOutlineSquaresPlus className="h-[18px] w-[18px] text-dark-900" />
+                      ),
+                    },
+                  ]
+                : []),
+              ...(canEdit && !isOptimistic
+                ? [
+                    {
+                      label: t`Set WIP limit`,
+                      action: () => setIsEditingWip(true),
+                      icon: (
+                        <HiOutlineAdjustmentsHorizontal className="h-[18px] w-[18px] text-dark-900" />
                       ),
                     },
                   ]
@@ -185,6 +240,24 @@ export default function List({
           })()}
         </div>
       </div>
+      {isEditingWip && (
+        <div className="mb-2 px-3">
+          <input
+            type="number"
+            min="0"
+            placeholder={t`WIP Limit (0 to clear)`}
+            value={wipValue}
+            onChange={(e) => setWipValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSaveWip();
+              if (e.key === "Escape") setIsEditingWip(false);
+            }}
+            onBlur={handleSaveWip}
+            autoFocus
+            className="w-full rounded border border-light-400 bg-white px-2 py-1 text-xs text-neutral-900 focus:outline-none dark:border-dark-400 dark:bg-dark-200 dark:text-dark-1000"
+          />
+        </div>
+      )}
       {children}
     </div>
   );
