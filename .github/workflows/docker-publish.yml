@@ -207,6 +207,8 @@ jobs:
       - name: Publish the multi-arch image
         id: publish
         working-directory: /tmp/digests
+        env:
+          TAGS: ${{ steps.meta.outputs.tags }}
         run: |
           sources=()
           for digest in *; do sources+=("$IMAGE@sha256:$digest"); done
