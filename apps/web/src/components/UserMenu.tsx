@@ -86,6 +86,7 @@ export default function UserMenu({
                 width={24}
                 height={24}
                 alt=""
+                unoptimized
               />
             ) : (
               <span className="inline-block h-6 w-6 overflow-hidden rounded-full bg-light-400 dark:bg-dark-400">

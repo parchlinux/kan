@@ -45,6 +45,7 @@ const config = {
   eslint: { ignoreDuringBuilds: true },
 
   images: {
+    unoptimized: true,
     remotePatterns: (() => {
       /** @type {Array<{protocol: "http" | "https", hostname: string}>} */
       const patterns = [

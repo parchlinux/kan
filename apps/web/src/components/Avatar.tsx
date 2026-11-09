@@ -38,6 +38,7 @@ const Avatar = ({
           width={sizeMap[size]}
           height={sizeMap[size]}
           alt=""
+          unoptimized
         />
       ) : (
         <span

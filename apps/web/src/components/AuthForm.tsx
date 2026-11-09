@@ -347,24 +347,6 @@ export function Auth({
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <Button
-          key="parch-forum"
-          onClick={() => {
-            window.location.href = `/api/auth/discourse?callbackURL=${encodeURIComponent(callbackURL)}`;
-          }}
-          iconLeft={
-            <img
-              src="/logo.svg"
-              alt="Parch"
-              className="h-4 w-4"
-            />
-          }
-          fullWidth
-          size="lg"
-          className="border border-[#059669]/30 bg-[#059669]/10 font-semibold text-[#059669] hover:bg-[#059669]/20 dark:border-[#059669]/40 dark:bg-[#059669]/20 dark:text-[#34d399] dark:hover:bg-[#059669]/30"
-        >
-          <Trans>Continue with Parch Forum</Trans>
-        </Button>
         {socialProviders?.length !== 0 &&
           Object.entries(availableSocialProviders).map(([key, provider]) => {
             if (!socialProviders?.includes(key)) {

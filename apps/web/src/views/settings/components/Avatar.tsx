@@ -230,6 +230,7 @@ export default function Avatar({
             width={64}
             height={64}
             className="rounded-full"
+            unoptimized
           />
         ) : (
           <span className="inline-block h-16 w-16 overflow-hidden rounded-full bg-light-400 dark:bg-dark-400">
