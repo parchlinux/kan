@@ -108,9 +108,27 @@ export async function generateAvatarUrl(
     return imageKey;
   }
 
-  const bucket = env("NEXT_PUBLIC_AVATAR_BUCKET_NAME");
+  const bucket =
+    process.env.NEXT_PUBLIC_AVATAR_BUCKET_NAME ||
+    env("NEXT_PUBLIC_AVATAR_BUCKET_NAME");
   if (!bucket) {
     return null;
+  }
+
+  const storageUrl =
+    process.env.NEXT_PUBLIC_STORAGE_URL || env("NEXT_PUBLIC_STORAGE_URL");
+  const storageDomain =
+    process.env.NEXT_PUBLIC_STORAGE_DOMAIN || env("NEXT_PUBLIC_STORAGE_DOMAIN");
+  const useVirtualHosted =
+    (process.env.NEXT_PUBLIC_USE_VIRTUAL_HOSTED_URLS ||
+      env("NEXT_PUBLIC_USE_VIRTUAL_HOSTED_URLS")) === "true";
+
+  if (useVirtualHosted && storageDomain) {
+    return `https://${bucket}.${storageDomain}/${imageKey}`;
+  }
+
+  if (storageUrl) {
+    return `${storageUrl}/${bucket}/${imageKey}`;
   }
 
   try {
@@ -133,9 +151,27 @@ export async function generateAttachmentUrl(
     return null;
   }
 
-  const bucket = env("NEXT_PUBLIC_ATTACHMENTS_BUCKET_NAME");
+  const bucket =
+    process.env.NEXT_PUBLIC_ATTACHMENTS_BUCKET_NAME ||
+    env("NEXT_PUBLIC_ATTACHMENTS_BUCKET_NAME");
   if (!bucket) {
     return null;
+  }
+
+  const storageUrl =
+    process.env.NEXT_PUBLIC_STORAGE_URL || env("NEXT_PUBLIC_STORAGE_URL");
+  const storageDomain =
+    process.env.NEXT_PUBLIC_STORAGE_DOMAIN || env("NEXT_PUBLIC_STORAGE_DOMAIN");
+  const useVirtualHosted =
+    (process.env.NEXT_PUBLIC_USE_VIRTUAL_HOSTED_URLS ||
+      env("NEXT_PUBLIC_USE_VIRTUAL_HOSTED_URLS")) === "true";
+
+  if (useVirtualHosted && storageDomain) {
+    return `https://${bucket}.${storageDomain}/${attachmentKey}`;
+  }
+
+  if (storageUrl) {
+    return `${storageUrl}/${bucket}/${attachmentKey}`;
   }
 
   try {

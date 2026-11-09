@@ -1,6 +1,10 @@
 import { afterEach, describe, expect, it } from "vitest";
 
-import { createS3Client } from "./s3";
+import {
+  createS3Client,
+  generateAttachmentUrl,
+  generateAvatarUrl,
+} from "./s3";
 
 const originalS3Region = process.env.S3_REGION;
 const originalS3InternalEndpoint = process.env.S3_INTERNAL_ENDPOINT;
@@ -81,5 +85,49 @@ describe("createS3Client", () => {
     const endpoint = await client.config.endpoint();
     expect(endpoint.hostname).toBe("public-s3.example.com");
     client.destroy();
+  });
+});
+
+describe("generateAvatarUrl", () => {
+  it("returns null when imageKey is not provided", async () => {
+    expect(await generateAvatarUrl(null)).toBeNull();
+    expect(await generateAvatarUrl(undefined)).toBeNull();
+  });
+
+  it("returns full external URL as-is", async () => {
+    expect(await generateAvatarUrl("https://example.com/avatar.jpg")).toBe(
+      "https://example.com/avatar.jpg",
+    );
+  });
+
+  it("constructs direct URL when NEXT_PUBLIC_STORAGE_URL is configured", async () => {
+    process.env.NEXT_PUBLIC_AVATAR_BUCKET_NAME = "avatars";
+    process.env.NEXT_PUBLIC_STORAGE_URL = "https://kan.parchlinux.com";
+
+    const url = await generateAvatarUrl("user123/avatar.png");
+    expect(url).toBe("https://kan.parchlinux.com/avatars/user123/avatar.png");
+
+    delete process.env.NEXT_PUBLIC_AVATAR_BUCKET_NAME;
+    delete process.env.NEXT_PUBLIC_STORAGE_URL;
+  });
+});
+
+describe("generateAttachmentUrl", () => {
+  it("returns null when attachmentKey is not provided", async () => {
+    expect(await generateAttachmentUrl(null)).toBeNull();
+    expect(await generateAttachmentUrl(undefined)).toBeNull();
+  });
+
+  it("constructs direct URL when NEXT_PUBLIC_STORAGE_URL is configured", async () => {
+    process.env.NEXT_PUBLIC_ATTACHMENTS_BUCKET_NAME = "attachments";
+    process.env.NEXT_PUBLIC_STORAGE_URL = "https://kan.parchlinux.com";
+
+    const url = await generateAttachmentUrl("workspace1/card1/doc.pdf");
+    expect(url).toBe(
+      "https://kan.parchlinux.com/attachments/workspace1/card1/doc.pdf",
+    );
+
+    delete process.env.NEXT_PUBLIC_ATTACHMENTS_BUCKET_NAME;
+    delete process.env.NEXT_PUBLIC_STORAGE_URL;
   });
 });
