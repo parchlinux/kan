@@ -63,6 +63,12 @@ export const cardRouter = createTRPCRouter({
           .enum(["urgent", "high", "medium", "low", "none"])
           .optional(),
         storyPoints: z.number().int().min(0).max(1000).nullable().optional(),
+        architecture: z.enum(["x86_64", "aarch64", "all"]).nullable().optional(),
+        desktopEnv: z
+          .enum(["gnome", "kde", "hyprland", "xfce", "cli", "all"])
+          .nullable()
+          .optional(),
+        isBlocked: z.boolean().optional(),
       }),
     )
     .output(cardCreateResponseSchema)
@@ -157,6 +163,9 @@ export const cardRouter = createTRPCRouter({
         dueDate: input.dueDate ?? null,
         priority: input.priority,
         storyPoints: input.storyPoints,
+        architecture: input.architecture,
+        desktopEnv: input.desktopEnv,
+        isBlocked: input.isBlocked,
       });
 
       const newCardId = newCard.id;
@@ -1005,6 +1014,12 @@ export const cardRouter = createTRPCRouter({
           .enum(["urgent", "high", "medium", "low", "none"])
           .optional(),
         storyPoints: z.number().int().min(0).max(1000).nullable().optional(),
+        architecture: z.enum(["x86_64", "aarch64", "all"]).nullable().optional(),
+        desktopEnv: z
+          .enum(["gnome", "kde", "hyprland", "xfce", "cli", "all"])
+          .nullable()
+          .optional(),
+        isBlocked: z.boolean().optional(),
       }),
     )
     .output(cardUpdateResponseSchema)
@@ -1116,7 +1131,10 @@ export const cardRouter = createTRPCRouter({
         normalizedDescription !== undefined ||
         input.dueDate !== undefined ||
         input.priority !== undefined ||
-        input.storyPoints !== undefined
+        input.storyPoints !== undefined ||
+        input.architecture !== undefined ||
+        input.desktopEnv !== undefined ||
+        input.isBlocked !== undefined
       ) {
         result = await cardRepo.update(
           ctx.db,
@@ -1129,6 +1147,15 @@ export const cardRouter = createTRPCRouter({
             ...(input.priority !== undefined && { priority: input.priority }),
             ...(input.storyPoints !== undefined && {
               storyPoints: input.storyPoints,
+            }),
+            ...(input.architecture !== undefined && {
+              architecture: input.architecture,
+            }),
+            ...(input.desktopEnv !== undefined && {
+              desktopEnv: input.desktopEnv,
+            }),
+            ...(input.isBlocked !== undefined && {
+              isBlocked: input.isBlocked,
             }),
           },
           { cardPublicId: input.cardPublicId },

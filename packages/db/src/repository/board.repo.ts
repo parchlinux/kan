@@ -289,6 +289,9 @@ export const getByPublicId = async (
               cardNumber: true,
               priority: true,
               storyPoints: true,
+              architecture: true,
+              desktopEnv: true,
+              isBlocked: true,
             },
             with: {
               labels: {
@@ -611,6 +614,9 @@ export const getBySlug = async (
               cardNumber: true,
               priority: true,
               storyPoints: true,
+              architecture: true,
+              desktopEnv: true,
+              isBlocked: true,
             },
             with: {
               labels: {

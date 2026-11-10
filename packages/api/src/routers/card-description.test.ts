@@ -68,6 +68,9 @@ describe("card description updates", () => {
       dueDate: null,
       priority: "none",
       storyPoints: null,
+      architecture: null,
+      desktopEnv: null,
+      isBlocked: false,
       list: {
         publicId: "list-12345678",
         name: "Todo",
@@ -81,6 +84,9 @@ describe("card description updates", () => {
       dueDate: null,
       priority: "none",
       storyPoints: null,
+      architecture: null,
+      desktopEnv: null,
+      isBlocked: false,
     });
     vi.mocked(cardActivityRepo.bulkCreate).mockResolvedValue([]);
     vi.mocked(sendWebhooksForWorkspace).mockResolvedValue(undefined);

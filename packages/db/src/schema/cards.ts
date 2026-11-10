@@ -2,6 +2,7 @@ import { relations } from "drizzle-orm";
 import {
   bigint,
   bigserial,
+  boolean,
   index,
   integer,
   pgEnum,
@@ -82,6 +83,9 @@ export const cards = pgTable(
     dueDate: timestamp("dueDate"),
     priority: varchar("priority", { length: 20 }).default("none"),
     storyPoints: integer("storyPoints"),
+    architecture: varchar("architecture", { length: 20 }),
+    desktopEnv: varchar("desktopEnv", { length: 20 }),
+    isBlocked: boolean("isBlocked").default(false),
   },
   (table) => [
     index("card_list_number_idx").on(table.listId, table.cardNumber),

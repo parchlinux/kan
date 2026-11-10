@@ -4,6 +4,9 @@ import {
   HiBars3BottomLeft,
   HiChatBubbleLeft,
   HiOutlineClock,
+  HiOutlineCpuChip,
+  HiOutlineComputerDesktop,
+  HiExclamationTriangle,
 } from "react-icons/hi2";
 import { twMerge } from "tailwind-merge";
 
@@ -27,6 +30,11 @@ const Card = ({
   dueDate,
   priority,
   storyPoints,
+  architecture,
+  desktopEnv,
+  isBlocked,
+  density = "detailed",
+  isFocused = false,
 }: {
   title: string;
   ticketNumber?: string | null;
@@ -59,6 +67,11 @@ const Card = ({
   dueDate?: Date | null;
   priority?: string | null;
   storyPoints?: number | null;
+  architecture?: string | null;
+  desktopEnv?: string | null;
+  isBlocked?: boolean | null;
+  density?: "detailed" | "compact";
+  isFocused?: boolean;
 }) => {
   const { dateLocale } = useLocalisation();
   const showYear = dueDate ? !isSameYear(dueDate, new Date()) : false;
@@ -88,14 +101,97 @@ const Card = ({
       : 0;
   const hasDueDate = !!dueDate;
 
+  if (density === "compact") {
+    return (
+      <div
+        className={twMerge(
+          "flex flex-col overflow-hidden rounded-md border border-light-200 bg-light-50 px-2.5 py-1.5 text-xs text-neutral-900 transition-all dark:border-dark-200 dark:bg-dark-200 dark:text-dark-1000 dark:hover:bg-dark-300",
+          isBlocked && "border-l-4 border-l-red-500 dark:border-l-red-500",
+          isFocused &&
+            "ring-2 ring-emerald-500 ring-offset-1 dark:ring-offset-dark-100 shadow-md",
+        )}
+      >
+        <div className="flex items-center justify-between gap-1 mb-1">
+          <div className="flex items-center gap-1.5 truncate">
+            {isBlocked && (
+              <HiExclamationTriangle
+                className="h-3.5 w-3.5 flex-shrink-0 text-red-500 animate-pulse"
+                title="Blocked issue"
+              />
+            )}
+            {ticketNumber ? (
+              <span className="text-[11px] font-mono text-light-700 dark:text-dark-800">
+                {ticketNumber}
+              </span>
+            ) : null}
+            {architecture && architecture !== "all" && (
+              <span className="rounded bg-emerald-50 px-1 py-0.2 font-mono text-[9px] text-emerald-700 dark:bg-emerald-950/80 dark:text-emerald-300">
+                {architecture}
+              </span>
+            )}
+            {desktopEnv && desktopEnv !== "all" && (
+              <span className="rounded bg-cyan-50 px-1 py-0.2 text-[9px] text-cyan-700 dark:bg-cyan-950/80 dark:text-cyan-300 capitalize">
+                {desktopEnv}
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-1 flex-shrink-0">
+            {storyPoints != null && (
+              <span className="rounded bg-light-200 px-1 py-0.2 text-[9px] font-semibold text-light-900 dark:bg-dark-400 dark:text-dark-900">
+                {storyPoints}p
+              </span>
+            )}
+            {priority && priority !== "none" && (
+              <span
+                className={twMerge(
+                  "rounded px-1 py-0.2 text-[9px] font-semibold capitalize",
+                  priority === "urgent" &&
+                    "bg-red-100 text-red-700 dark:bg-red-950/80 dark:text-red-300",
+                  priority === "high" &&
+                    "bg-amber-100 text-amber-700 dark:bg-amber-950/80 dark:text-amber-300",
+                  priority === "medium" &&
+                    "bg-blue-100 text-blue-700 dark:bg-blue-950/80 dark:text-blue-300",
+                  priority === "low" &&
+                    "bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300",
+                )}
+              >
+                {priority}
+              </span>
+            )}
+          </div>
+        </div>
+        <span className="truncate font-medium text-xs text-neutral-800 dark:text-dark-950" dir="auto">
+          {title}
+        </span>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col overflow-hidden rounded-md border border-light-200 bg-light-50 px-3 py-2 text-sm text-neutral-900 dark:border-dark-200 dark:bg-dark-200 dark:text-dark-1000 dark:hover:bg-dark-300">
+    <div
+      className={twMerge(
+        "flex flex-col overflow-hidden rounded-md border border-light-200 bg-light-50 px-3 py-2 text-sm text-neutral-900 transition-all dark:border-dark-200 dark:bg-dark-200 dark:text-dark-1000 dark:hover:bg-dark-300",
+        isBlocked && "border-l-4 border-l-red-500 dark:border-l-red-500",
+        isFocused &&
+          "ring-2 ring-emerald-500 ring-offset-1 dark:ring-offset-dark-100 shadow-md",
+      )}
+    >
       <div className="mb-1 flex items-center justify-between">
-        {ticketNumber ? (
-          <span className="text-xs text-light-700 dark:text-dark-800">
-            {ticketNumber}
-          </span>
-        ) : <span />}
+        <div className="flex items-center gap-1.5">
+          {isBlocked && (
+            <span className="inline-flex items-center gap-1 rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-bold text-red-700 dark:bg-red-950/90 dark:text-red-300">
+              <HiExclamationTriangle className="h-3 w-3 text-red-500 animate-pulse" />
+              BLOCKED
+            </span>
+          )}
+          {ticketNumber ? (
+            <span className="text-xs font-mono text-light-700 dark:text-dark-800">
+              {ticketNumber}
+            </span>
+          ) : (
+            <span />
+          )}
+        </div>
         <div className="flex items-center gap-1.5">
           {storyPoints != null && (
             <span className="rounded bg-light-200 px-1.5 py-0.5 text-[10px] font-semibold text-light-900 dark:bg-dark-400 dark:text-dark-900">
@@ -121,10 +217,12 @@ const Card = ({
           )}
         </div>
       </div>
-      <span className="break-words" dir="auto">
+      <span className="break-words font-normal" dir="auto">
         {title}
       </span>
       {labels.length ||
+      architecture ||
+      desktopEnv ||
       members.length ||
       cardSummary.checklistItemCount > 0 ||
       cardSummary.hasDescription ||
@@ -132,9 +230,22 @@ const Card = ({
       hasDueDate ||
       cardSummary.attachmentCount > 0 ? (
         <div className="mt-2 flex flex-col justify-end">
-          <div className="space-x-0.5">
+          <div className="flex flex-wrap items-center gap-1">
+            {architecture && architecture !== "all" && (
+              <span className="inline-flex items-center gap-1 rounded bg-emerald-100/80 px-1.5 py-0.5 font-mono text-[10px] font-medium text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300">
+                <HiOutlineCpuChip className="h-3 w-3" />
+                {architecture}
+              </span>
+            )}
+            {desktopEnv && desktopEnv !== "all" && (
+              <span className="inline-flex items-center gap-1 rounded bg-cyan-100/80 px-1.5 py-0.5 text-[10px] font-medium text-cyan-800 capitalize dark:bg-cyan-950/80 dark:text-cyan-300">
+                <HiOutlineComputerDesktop className="h-3 w-3" />
+                {desktopEnv}
+              </span>
+            )}
             {labels.map((label) => (
               <Badge
+                key={label.name}
                 value={label.name}
                 iconLeft={<LabelIcon colourCode={label.colourCode} />}
               />
@@ -198,6 +309,7 @@ const Card = ({
 
                     return (
                       <Avatar
+                        key={email}
                         name={user?.name ?? ""}
                         email={user?.email ?? email}
                         imageUrl={avatarUrl}

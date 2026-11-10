@@ -45,6 +45,9 @@ import ListSelector from "./components/ListSelector";
 import MemberSelector from "./components/MemberSelector";
 import { NewChecklistForm } from "./components/NewChecklistForm";
 import NewCommentForm from "./components/NewCommentForm";
+import { ArchitectureSelector } from "./components/ArchitectureSelector";
+import { BlockerToggle } from "./components/BlockerToggle";
+import { DesktopEnvSelector } from "./components/DesktopEnvSelector";
 import { PrioritySelector } from "./components/PrioritySelector";
 import { StoryPointsInput } from "./components/StoryPointsInput";
 
@@ -180,6 +183,33 @@ export function CardRightPanel({ isTemplate }: { isTemplate?: boolean }) {
         <StoryPointsInput
           cardPublicId={cardId ?? ""}
           storyPoints={card?.storyPoints}
+          isLoading={!card}
+          disabled={!canEdit}
+        />
+      </div>
+      <div className="mb-4 flex w-full flex-row">
+        <p className="my-2 mb-2 w-[100px] text-sm font-medium">{t`Arch`}</p>
+        <ArchitectureSelector
+          cardPublicId={cardId ?? ""}
+          architecture={card?.architecture}
+          isLoading={!card}
+          disabled={!canEdit}
+        />
+      </div>
+      <div className="mb-4 flex w-full flex-row">
+        <p className="my-2 mb-2 w-[100px] text-sm font-medium">{t`Desktop`}</p>
+        <DesktopEnvSelector
+          cardPublicId={cardId ?? ""}
+          desktopEnv={card?.desktopEnv}
+          isLoading={!card}
+          disabled={!canEdit}
+        />
+      </div>
+      <div className="mb-4 flex w-full flex-row">
+        <p className="my-2 mb-2 w-[100px] text-sm font-medium">{t`Blocker`}</p>
+        <BlockerToggle
+          cardPublicId={cardId ?? ""}
+          isBlocked={card?.isBlocked}
           isLoading={!card}
           disabled={!canEdit}
         />

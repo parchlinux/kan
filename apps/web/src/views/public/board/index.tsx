@@ -227,6 +227,11 @@ export default function PublicBoardView() {
                               comments={card.comments ?? []}
                               attachments={card.attachments}
                               dueDate={card.dueDate ?? null}
+                              priority={card.priority ?? null}
+                              storyPoints={card.storyPoints ?? null}
+                              architecture={card.architecture ?? null}
+                              desktopEnv={card.desktopEnv ?? null}
+                              isBlocked={card.isBlocked ?? null}
                             />
                           </Link>
                         );

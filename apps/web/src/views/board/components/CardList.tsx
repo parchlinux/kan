@@ -19,6 +19,8 @@ interface CardListProps {
   freezeHeight: boolean;
   getCardHref: (cardPublicId: string) => string;
   onContextMenu: (event: React.MouseEvent, cardPublicId: string) => void;
+  density?: "detailed" | "compact";
+  focusedCardId?: string | null;
 }
 
 export default function CardList({
@@ -29,6 +31,8 @@ export default function CardList({
   freezeHeight,
   getCardHref,
   onContextMenu,
+  density = "detailed",
+  focusedCardId = null,
 }: CardListProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
@@ -91,6 +95,8 @@ export default function CardList({
               cardHref={getCardHref(card.publicId)}
               canEditCard={canEditCard}
               onContextMenu={onContextMenu}
+              density={density}
+              isFocused={card.publicId === focusedCardId}
             />
           ))}
         </SortableContext>

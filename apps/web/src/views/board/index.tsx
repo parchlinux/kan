@@ -78,6 +78,9 @@ import { NewTemplateForm } from "./components/NewTemplateForm";
 import { UpdateBoardSlugForm } from "./components/UpdateBoardSlugForm";
 import ViewToggle from "./components/ViewToggle";
 import VisibilityButton from "./components/VisibilityButton";
+import { QuickFilterBar } from "./components/QuickFilterBar";
+import { ReleaseNotesModal } from "./components/ReleaseNotesModal";
+import { authClient } from "@kan/auth/client";
 import { createBoardCollisionDetection } from "./dnd/collision";
 
 type PublicListId = string;
@@ -107,6 +110,35 @@ export default function BoardPage({ isTemplate }: { isTemplate?: boolean }) {
     y: number;
     cardPublicId: string;
   } | null>(null);
+
+  const { data: session } = authClient.useSession();
+  const [density, setDensity] = useState<"detailed" | "compact">(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("parch_kanban_density");
+      if (stored === "compact" || stored === "detailed") return stored;
+    }
+    return "detailed";
+  });
+
+  const toggleDensity = () => {
+    const next = density === "compact" ? "detailed" : "compact";
+    setDensity(next);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("parch_kanban_density", next);
+    }
+  };
+
+  const [isReleaseNotesOpen, setIsReleaseNotesOpen] = useState(false);
+  const [myCardsOnly, setMyCardsOnly] = useState(false);
+  const [selectedPriority, setSelectedPriority] = useState<string | null>(null);
+  const [selectedLabelId, setSelectedLabelId] = useState<string | null>(null);
+  const [selectedArch, setSelectedArch] = useState<string | null>(null);
+  const [selectedDE, setSelectedDE] = useState<string | null>(null);
+  const [blockedOnly, setBlockedOnly] = useState(false);
+
+  const [focusedCardId, setFocusedCardId] = useState<string | null>(null);
+  const [focusedListIndex, setFocusedListIndex] = useState(0);
+  const [focusedCardIndex, setFocusedCardIndex] = useState(0);
 
   const { ref: scrollRef, onMouseDown } = useDragToScroll({
     enabled: true,
@@ -493,10 +525,221 @@ export default function BoardPage({ isTemplate }: { isTemplate?: boolean }) {
   }, [boardData]);
 
   const cardsByList = dragCardsByList ?? baseCardsByList;
+
+  const hasActiveQuickFilters =
+    myCardsOnly ||
+    selectedPriority !== null ||
+    selectedLabelId !== null ||
+    selectedArch !== null ||
+    selectedDE !== null ||
+    blockedOnly;
+
+  const clearQuickFilters = () => {
+    setMyCardsOnly(false);
+    setSelectedPriority(null);
+    setSelectedLabelId(null);
+    setSelectedArch(null);
+    setSelectedDE(null);
+    setBlockedOnly(false);
+  };
+
+  const displayCardsByList = useMemo(() => {
+    if (!hasActiveQuickFilters || activeId != null) return cardsByList;
+    const filtered: Record<string, BoardCard[]> = {};
+    for (const [listId, cards] of Object.entries(cardsByList)) {
+      filtered[listId] = cards.filter((card) => {
+        if (myCardsOnly) {
+          const userEmail = session?.user?.email;
+          const isMember = card.members.some(
+            (m) =>
+              (m.user && (m.user.email === userEmail || m.email === userEmail)) ||
+              m.email === userEmail,
+          );
+          if (!isMember) return false;
+        }
+        if (selectedPriority && card.priority !== selectedPriority) {
+          return false;
+        }
+        if (selectedLabelId) {
+          const hasLabel = card.labels.some(
+            (l) => l.publicId === selectedLabelId,
+          );
+          if (!hasLabel) return false;
+        }
+        if (selectedArch && card.architecture !== selectedArch) {
+          return false;
+        }
+        if (selectedDE && card.desktopEnv !== selectedDE) {
+          return false;
+        }
+        if (blockedOnly && !card.isBlocked) {
+          return false;
+        }
+        return true;
+      });
+    }
+    return filtered;
+  }, [
+    cardsByList,
+    hasActiveQuickFilters,
+    activeId,
+    myCardsOnly,
+    session?.user,
+    selectedPriority,
+    selectedLabelId,
+    selectedArch,
+    selectedDE,
+    blockedOnly,
+  ]);
+
   const lists = useMemo(
     () => dragListOrder ?? boardData?.lists ?? [],
     [dragListOrder, boardData?.lists],
   );
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable ||
+          target.closest("[role='dialog']") ||
+          target.closest("form"))
+      ) {
+        return;
+      }
+
+      if (isOpen || isReleaseNotesOpen || contextMenu !== null) {
+        return;
+      }
+
+      const activeLists = lists;
+      if (!activeLists.length) return;
+
+      const getCardsForList = (idx: number) => {
+        const list = activeLists[idx];
+        return list ? displayCardsByList[list.publicId] ?? [] : [];
+      };
+
+      if (e.key === "Escape") {
+        setFocusedCardId(null);
+        return;
+      }
+
+      if (e.key === "j" || e.key === "ArrowDown") {
+        e.preventDefault();
+        const currentCards = getCardsForList(focusedListIndex);
+        if (!currentCards.length) return;
+        const nextIdx =
+          focusedCardIndex < currentCards.length - 1
+            ? focusedCardIndex + 1
+            : 0;
+        setFocusedCardIndex(nextIdx);
+        setFocusedCardId(currentCards[nextIdx]?.publicId ?? null);
+        return;
+      }
+
+      if (e.key === "k" || e.key === "ArrowUp") {
+        e.preventDefault();
+        const currentCards = getCardsForList(focusedListIndex);
+        if (!currentCards.length) return;
+        const prevIdx =
+          focusedCardIndex > 0
+            ? focusedCardIndex - 1
+            : currentCards.length - 1;
+        setFocusedCardIndex(prevIdx);
+        setFocusedCardId(currentCards[prevIdx]?.publicId ?? null);
+        return;
+      }
+
+      if (e.key === "h" || e.key === "ArrowLeft") {
+        e.preventDefault();
+        const prevListIdx =
+          focusedListIndex > 0 ? focusedListIndex - 1 : activeLists.length - 1;
+        setFocusedListIndex(prevListIdx);
+        const targetCards = getCardsForList(prevListIdx);
+        if (targetCards.length > 0) {
+          const nextCardIdx = Math.min(focusedCardIndex, targetCards.length - 1);
+          setFocusedCardIndex(nextCardIdx);
+          setFocusedCardId(targetCards[nextCardIdx]?.publicId ?? null);
+        } else {
+          setFocusedCardId(null);
+        }
+        return;
+      }
+
+      if (e.key === "l" || e.key === "ArrowRight") {
+        e.preventDefault();
+        const nextListIdx =
+          focusedListIndex < activeLists.length - 1 ? focusedListIndex + 1 : 0;
+        setFocusedListIndex(nextListIdx);
+        const targetCards = getCardsForList(nextListIdx);
+        if (targetCards.length > 0) {
+          const nextCardIdx = Math.min(focusedCardIndex, targetCards.length - 1);
+          setFocusedCardIndex(nextCardIdx);
+          setFocusedCardId(targetCards[nextCardIdx]?.publicId ?? null);
+        } else {
+          setFocusedCardId(null);
+        }
+        return;
+      }
+
+      if (e.key === "Enter") {
+        if (focusedCardId) {
+          e.preventDefault();
+          const targetUrl = isTemplate
+            ? `/templates/${boardId}/cards/${focusedCardId}${cardReturnQuery}`
+            : `/cards/${focusedCardId}${cardReturnQuery}`;
+          void router.push(targetUrl);
+        }
+        return;
+      }
+
+      if (e.key === "c" && !e.ctrlKey && !e.metaKey) {
+        const activeList = activeLists[focusedListIndex] ?? activeLists[0];
+        if (activeList && canCreateCard) {
+          e.preventDefault();
+          setSelectedPublicListId(activeList.publicId);
+          openModal("NEW_CARD");
+        }
+        return;
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [
+    lists,
+    displayCardsByList,
+    focusedListIndex,
+    focusedCardIndex,
+    focusedCardId,
+    isOpen,
+    isReleaseNotesOpen,
+    contextMenu,
+    boardId,
+    cardReturnQuery,
+    isTemplate,
+    router,
+    canCreateCard,
+    openModal,
+  ]);
+
+  useEffect(() => {
+    if (focusedCardId) {
+      const el = document.querySelector(`a[href*="${focusedCardId}"]`);
+      if (el) {
+        el.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+          inline: "nearest",
+        });
+      }
+    }
+  }, [focusedCardId]);
+
   // See the comment in CardList.tsx: dnd-kit disables the reflow
   // transition for a frame whenever the items array reference changes, so
   // this needs to stay stable across renders that don't actually reorder
@@ -953,6 +1196,29 @@ export default function BoardPage({ isTemplate }: { isTemplate?: boolean }) {
           </div>
         </div>
 
+        {boardData && (
+          <QuickFilterBar
+            labels={boardData.labels}
+            myCardsOnly={myCardsOnly}
+            onToggleMyCards={() => setMyCardsOnly((prev) => !prev)}
+            selectedPriority={selectedPriority}
+            onSelectPriority={setSelectedPriority}
+            selectedLabelId={selectedLabelId}
+            onSelectLabel={setSelectedLabelId}
+            selectedArch={selectedArch}
+            onSelectArch={setSelectedArch}
+            selectedDE={selectedDE}
+            onSelectDE={setSelectedDE}
+            blockedOnly={blockedOnly}
+            onToggleBlocked={() => setBlockedOnly((prev) => !prev)}
+            density={density}
+            onToggleDensity={toggleDensity}
+            onClearFilters={clearQuickFilters}
+            hasActiveFilters={hasActiveQuickFilters}
+            onOpenReleaseNotes={() => setIsReleaseNotesOpen(true)}
+          />
+        )}
+
         {view === "calendar" ? (
           boardData && (
             <CalendarView
@@ -1035,7 +1301,7 @@ export default function BoardPage({ isTemplate }: { isTemplate?: boolean }) {
                             key={`list.${list.publicId}`}
                             list={list}
                             cardsCount={
-                              (cardsByList[list.publicId] ?? list.cards ?? [])
+                              (displayCardsByList[list.publicId] ?? list.cards ?? [])
                                 .length
                             }
                             setSelectedPublicListId={(publicListId) => {
@@ -1045,10 +1311,12 @@ export default function BoardPage({ isTemplate }: { isTemplate?: boolean }) {
                           >
                             <CardList
                               listPublicId={list.publicId}
-                              cards={cardsByList[list.publicId] ?? list.cards}
+                              cards={displayCardsByList[list.publicId] ?? list.cards}
                               cardPrefix={boardData.workspace.cardPrefix}
                               canEditCard={!!canEditCard}
                               freezeHeight={dragCardsByList !== null}
+                              density={density}
+                              focusedCardId={focusedCardId}
                               getCardHref={(cardPublicId) =>
                                 isTemplate
                                   ? `/templates/${boardId}/cards/${cardPublicId}${cardReturnQuery}`
@@ -1077,6 +1345,7 @@ export default function BoardPage({ isTemplate }: { isTemplate?: boolean }) {
                           <CardPreview
                             card={activeCard}
                             cardPrefix={boardData.workspace.cardPrefix}
+                            density={density}
                           />
                         </div>
                       ) : null}
@@ -1094,6 +1363,15 @@ export default function BoardPage({ isTemplate }: { isTemplate?: boolean }) {
             onClose={() => setContextMenu(null)}
             onAction={handleCardContextMenuAction}
             canEdit={!!canEditCard}
+          />
+        )}
+        {boardData && (
+          <ReleaseNotesModal
+            isOpen={isReleaseNotesOpen}
+            onClose={() => setIsReleaseNotesOpen(false)}
+            lists={boardData.lists}
+            boardName={boardData.name}
+            cardPrefix={boardData.workspace.cardPrefix}
           />
         )}
         {renderModalContent()}

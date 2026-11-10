@@ -14,6 +14,8 @@ interface SortableCardProps {
   cardHref: string;
   canEditCard: boolean;
   onContextMenu: (event: React.MouseEvent, cardPublicId: string) => void;
+  density?: "detailed" | "compact";
+  isFocused?: boolean;
 }
 
 export default function SortableCard({
@@ -23,6 +25,8 @@ export default function SortableCard({
   cardHref,
   canEditCard,
   onContextMenu,
+  density = "detailed",
+  isFocused = false,
 }: SortableCardProps) {
   const isPlaceholder = card.publicId.startsWith("PLACEHOLDER");
 
@@ -69,7 +73,12 @@ export default function SortableCard({
       {...attributes}
       {...listeners}
     >
-      <CardPreview card={card} cardPrefix={cardPrefix} />
+      <CardPreview
+        card={card}
+        cardPrefix={cardPrefix}
+        density={density}
+        isFocused={isFocused}
+      />
     </Link>
   );
 }

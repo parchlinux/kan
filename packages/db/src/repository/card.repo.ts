@@ -47,6 +47,9 @@ export const create = async (
     dueDate?: Date | null;
     priority?: string | null;
     storyPoints?: number | null;
+    architecture?: string | null;
+    desktopEnv?: string | null;
+    isBlocked?: boolean;
   },
 ) => {
   return db.transaction(async (tx) => {
@@ -110,6 +113,9 @@ export const create = async (
         dueDate: cardInput.dueDate ?? null,
         priority: cardInput.priority ?? "none",
         storyPoints: cardInput.storyPoints ?? null,
+        architecture: cardInput.architecture ?? null,
+        desktopEnv: cardInput.desktopEnv ?? null,
+        isBlocked: cardInput.isBlocked ?? false,
       })
       .returning({
         id: cards.id,
@@ -118,6 +124,9 @@ export const create = async (
         cardNumber: cards.cardNumber,
         priority: cards.priority,
         storyPoints: cards.storyPoints,
+        architecture: cards.architecture,
+        desktopEnv: cards.desktopEnv,
+        isBlocked: cards.isBlocked,
       });
 
     if (!result[0]) throw new Error("Unable to create card");
@@ -331,6 +340,9 @@ export const update = async (
     dueDate?: Date | null;
     priority?: string | null;
     storyPoints?: number | null;
+    architecture?: string | null;
+    desktopEnv?: string | null;
+    isBlocked?: boolean;
   },
   args: {
     cardPublicId: string;
@@ -350,6 +362,15 @@ export const update = async (
       ...(cardInput.storyPoints !== undefined
         ? { storyPoints: cardInput.storyPoints }
         : {}),
+      ...(cardInput.architecture !== undefined
+        ? { architecture: cardInput.architecture }
+        : {}),
+      ...(cardInput.desktopEnv !== undefined
+        ? { desktopEnv: cardInput.desktopEnv }
+        : {}),
+      ...(cardInput.isBlocked !== undefined
+        ? { isBlocked: cardInput.isBlocked }
+        : {}),
       updatedAt: new Date(),
     })
     .where(and(eq(cards.publicId, args.cardPublicId), isNull(cards.deletedAt)))
@@ -361,6 +382,9 @@ export const update = async (
       dueDate: cards.dueDate,
       priority: cards.priority,
       storyPoints: cards.storyPoints,
+      architecture: cards.architecture,
+      desktopEnv: cards.desktopEnv,
+      isBlocked: cards.isBlocked,
     });
 
   return result;
@@ -398,6 +422,9 @@ export const getByPublicId = (db: dbClient, cardPublicId: string) => {
       dueDate: true,
       priority: true,
       storyPoints: true,
+      architecture: true,
+      desktopEnv: true,
+      isBlocked: true,
     },
     with: {
       list: {
@@ -630,6 +657,9 @@ export const getWithListAndMembersByPublicId = async (
       index: true,
       priority: true,
       storyPoints: true,
+      architecture: true,
+      desktopEnv: true,
+      isBlocked: true,
     },
     with: {
       labels: {
