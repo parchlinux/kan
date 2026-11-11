@@ -7,7 +7,7 @@ import { findWorkspaceByName } from "./shared.js";
 export function registerBoardTools(server: McpServer, client: KanClient): void {
   server.tool(
     "list_boards",
-    "List all boards in a workspace. Requires the workspace publicId — use find_workspace_by_name first if you only know the workspace name.",
+    "List all boards in a workspace. Requires the workspace publicId: use find_workspace_by_name first if you only know the workspace name.",
     {
       workspacePublicId: z
         .string()

@@ -6,7 +6,7 @@ import type { KanClient } from "../client.js";
 export function registerCardTools(server: McpServer, client: KanClient): void {
   server.tool(
     "create_card",
-    "Create a new card in a list",
+    "Create a new card in a list with optional priority, story points, architecture, desktop environment, and blocker flag",
     {
       listPublicId: z.string().describe("The list's public ID"),
       title: z.string().describe("Card title"),
@@ -27,6 +27,29 @@ export function registerCardTools(server: McpServer, client: KanClient): void {
         .enum(["start", "end"])
         .optional()
         .describe("Where to insert the card in the list (default: end)"),
+      priority: z
+        .enum(["urgent", "high", "medium", "low", "none"])
+        .optional()
+        .describe("Card priority (urgent, high, medium, low, none)"),
+      storyPoints: z
+        .number()
+        .int()
+        .min(0)
+        .max(1000)
+        .optional()
+        .describe("Story points estimate (integer between 0 and 1000)"),
+      architecture: z
+        .enum(["x86_64", "aarch64", "all"])
+        .optional()
+        .describe("Target Parch architecture (x86_64, aarch64, all)"),
+      desktopEnv: z
+        .enum(["gnome", "kde", "hyprland", "xfce", "cli", "all"])
+        .optional()
+        .describe("Target desktop environment (gnome, kde, hyprland, xfce, cli, all)"),
+      isBlocked: z
+        .boolean()
+        .optional()
+        .describe("Flag card as an active blocker issue"),
     },
     async ({
       listPublicId,
@@ -36,6 +59,11 @@ export function registerCardTools(server: McpServer, client: KanClient): void {
       labelPublicIds,
       memberPublicIds,
       position,
+      priority,
+      storyPoints,
+      architecture,
+      desktopEnv,
+      isBlocked,
     }) => {
       const data = await client.request("POST", "/cards", {
         listPublicId,
@@ -45,6 +73,11 @@ export function registerCardTools(server: McpServer, client: KanClient): void {
         labelPublicIds: labelPublicIds ?? [],
         memberPublicIds: memberPublicIds ?? [],
         position: position ?? "end",
+        priority,
+        storyPoints,
+        architecture,
+        desktopEnv,
+        isBlocked,
       });
       return {
         content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
@@ -54,7 +87,7 @@ export function registerCardTools(server: McpServer, client: KanClient): void {
 
   server.tool(
     "get_card",
-    "Get full details of a card including comments, checklists, labels and members",
+    "Get full details of a card including comments, checklists, labels, members, and custom Parch fields",
     { cardPublicId: z.string().describe("The card's public ID") },
     async ({ cardPublicId }) => {
       const data = await client.request("GET", `/cards/${cardPublicId}`);
@@ -66,7 +99,7 @@ export function registerCardTools(server: McpServer, client: KanClient): void {
 
   server.tool(
     "update_card",
-    "Update a card's title, description, due date, or move it to another list",
+    "Update a card's title, description, due date, priority, points, architecture, desktop env, blocker status, or move it to another list",
     {
       cardPublicId: z.string().describe("The card's public ID"),
       title: z.string().optional().describe("New card title"),
@@ -80,13 +113,55 @@ export function registerCardTools(server: McpServer, client: KanClient): void {
         .string()
         .optional()
         .describe("Move card to this list (public ID)"),
+      priority: z
+        .enum(["urgent", "high", "medium", "low", "none"])
+        .optional()
+        .describe("Card priority (urgent, high, medium, low, none)"),
+      storyPoints: z
+        .number()
+        .int()
+        .min(0)
+        .max(1000)
+        .nullable()
+        .optional()
+        .describe("Story points estimate, or null to clear"),
+      architecture: z
+        .enum(["x86_64", "aarch64", "all"])
+        .nullable()
+        .optional()
+        .describe("Target architecture, or null to clear"),
+      desktopEnv: z
+        .enum(["gnome", "kde", "hyprland", "xfce", "cli", "all"])
+        .nullable()
+        .optional()
+        .describe("Target desktop environment, or null to clear"),
+      isBlocked: z
+        .boolean()
+        .optional()
+        .describe("Flag card as an active blocker issue"),
     },
-    async ({ cardPublicId, title, description, dueDate, listPublicId }) => {
+    async ({
+      cardPublicId,
+      title,
+      description,
+      dueDate,
+      listPublicId,
+      priority,
+      storyPoints,
+      architecture,
+      desktopEnv,
+      isBlocked,
+    }) => {
       const data = await client.request("PUT", `/cards/${cardPublicId}`, {
         title,
         description,
         dueDate,
         listPublicId,
+        priority,
+        storyPoints,
+        architecture,
+        desktopEnv,
+        isBlocked,
       });
       return {
         content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
@@ -159,6 +234,240 @@ export function registerCardTools(server: McpServer, client: KanClient): void {
       );
       return {
         content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
+      };
+    },
+  );
+
+  server.tool(
+    "search_cards",
+    "Search and filter cards across a board by text query, priority, architecture, desktop environment, or blocker status",
+    {
+      boardPublicId: z.string().describe("The board's public ID"),
+      query: z
+        .string()
+        .optional()
+        .describe("Text to match in title or description (case-insensitive)"),
+      priority: z
+        .enum(["urgent", "high", "medium", "low", "none"])
+        .optional()
+        .describe("Filter by priority"),
+      architecture: z
+        .string()
+        .optional()
+        .describe("Filter by architecture (e.g. x86_64, aarch64)"),
+      desktopEnv: z
+        .string()
+        .optional()
+        .describe("Filter by desktop environment (e.g. kde, gnome, hyprland, xfce, cli)"),
+      isBlocked: z
+        .boolean()
+        .optional()
+        .describe("Filter cards by blocker status"),
+    },
+    async ({
+      boardPublicId,
+      query,
+      priority,
+      architecture,
+      desktopEnv,
+      isBlocked,
+    }) => {
+      interface BoardResponse {
+        publicId: string;
+        name: string;
+        lists: {
+          publicId: string;
+          name: string;
+          cards: {
+            publicId: string;
+            title: string;
+            cardNumber?: number | null;
+            description?: string | null;
+            priority?: string | null;
+            storyPoints?: number | null;
+            architecture?: string | null;
+            desktopEnv?: string | null;
+            isBlocked?: boolean | null;
+            dueDate?: string | null;
+            labels?: { name: string; colourCode: string | null }[];
+          }[];
+        }[];
+      }
+
+      const board = await client.request<BoardResponse>(
+        "GET",
+        `/boards/${boardPublicId}`,
+      );
+
+      const q = query?.toLowerCase().trim();
+      const results: unknown[] = [];
+
+      for (const list of board.lists ?? []) {
+        for (const card of list.cards ?? []) {
+          if (
+            q &&
+            !card.title.toLowerCase().includes(q) &&
+            !(card.description?.toLowerCase().includes(q))
+          ) {
+            continue;
+          }
+          if (priority && card.priority !== priority) {
+            continue;
+          }
+          if (architecture && card.architecture !== architecture) {
+            continue;
+          }
+          if (desktopEnv && card.desktopEnv !== desktopEnv) {
+            continue;
+          }
+          if (isBlocked !== undefined && !!card.isBlocked !== isBlocked) {
+            continue;
+          }
+
+          results.push({
+            publicId: card.publicId,
+            cardNumber: card.cardNumber,
+            title: card.title,
+            listName: list.name,
+            listPublicId: list.publicId,
+            priority: card.priority ?? "none",
+            storyPoints: card.storyPoints ?? null,
+            architecture: card.architecture ?? null,
+            desktopEnv: card.desktopEnv ?? null,
+            isBlocked: !!card.isBlocked,
+            labels: card.labels?.map((l) => l.name) ?? [],
+            dueDate: card.dueDate ?? null,
+          });
+        }
+      }
+
+      return {
+        content: [
+          {
+            type: "text",
+            text: JSON.stringify(
+              {
+                boardName: board.name,
+                totalMatches: results.length,
+                cards: results,
+              },
+              null,
+              2,
+            ),
+          },
+        ],
+      };
+    },
+  );
+
+  server.tool(
+    "generate_release_notes",
+    "Generate Markdown release notes for a board, grouped by primary label, with ticket numbers, architecture, and desktop environment tags",
+    {
+      boardPublicId: z.string().describe("The board's public ID"),
+      listNameOrPublicId: z
+        .string()
+        .optional()
+        .describe("Target list name or public ID (defaults to list named Done, Release, or the last column)"),
+    },
+    async ({ boardPublicId, listNameOrPublicId }) => {
+      interface BoardResponse {
+        publicId: string;
+        name: string;
+        workspace?: { cardPrefix?: string | null };
+        lists: {
+          publicId: string;
+          name: string;
+          cards: {
+            publicId: string;
+            title: string;
+            cardNumber?: number | null;
+            architecture?: string | null;
+            desktopEnv?: string | null;
+            isBlocked?: boolean | null;
+            labels?: { name: string }[];
+          }[];
+        }[];
+      }
+
+      const board = await client.request<BoardResponse>(
+        "GET",
+        `/boards/${boardPublicId}`,
+      );
+
+      const lists = board.lists ?? [];
+      let targetList = lists[lists.length - 1];
+
+      if (listNameOrPublicId) {
+        const found = lists.find(
+          (l) =>
+            l.publicId === listNameOrPublicId ||
+            l.name.toLowerCase() === listNameOrPublicId.toLowerCase(),
+        );
+        if (found) targetList = found;
+      } else {
+        const doneList = lists.find((l) =>
+          /done|release|complete|تمام/i.test(l.name),
+        );
+        if (doneList) targetList = doneList;
+      }
+
+      if (!targetList) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `No list found in board "${board.name}".`,
+            },
+          ],
+        };
+      }
+
+      const prefix = board.workspace?.cardPrefix || "PARCH";
+      const cards = targetList.cards ?? [];
+
+      const grouped: Record<string, typeof cards> = {};
+      const unlabelled: typeof cards = [];
+
+      for (const card of cards) {
+        if (card.labels && card.labels.length > 0 && card.labels[0]?.name) {
+          const cat = card.labels[0].name;
+          if (!grouped[cat]) grouped[cat] = [];
+          grouped[cat].push(card);
+        } else {
+          unlabelled.push(card);
+        }
+      }
+
+      const lines: string[] = [];
+      lines.push(`# ${board.name} Release Notes`);
+      lines.push(`Target List: ${targetList.name}`);
+      lines.push(`Total Cards: ${cards.length}`);
+      lines.push("");
+
+      const formatLine = (c: (typeof cards)[0]) => {
+        const ticket = c.cardNumber != null ? `[${prefix}-${c.cardNumber}]` : "";
+        const tags: string[] = [];
+        if (c.architecture && c.architecture !== "all") tags.push(c.architecture);
+        if (c.desktopEnv && c.desktopEnv !== "all") tags.push(c.desktopEnv);
+        const tagStr = tags.length > 0 ? ` (${tags.join(", ")})` : "";
+        return `- ${ticket} ${c.title}${tagStr}`.trim();
+      };
+
+      for (const [group, groupCards] of Object.entries(grouped)) {
+        lines.push(`## ${group}`);
+        for (const c of groupCards) lines.push(formatLine(c));
+        lines.push("");
+      }
+
+      if (unlabelled.length > 0) {
+        lines.push("## Other Changes");
+        for (const c of unlabelled) lines.push(formatLine(c));
+        lines.push("");
+      }
+
+      return {
+        content: [{ type: "text", text: lines.join("\n") }],
       };
     },
   );
