@@ -9,7 +9,6 @@ import {
   HiOutlineArrowTopRightOnSquare,
 } from "react-icons/hi2";
 import Link from "next/link";
-import Dashboard from "~/components/Dashboard";
 import { useWorkspace } from "~/providers/workspace";
 import { api } from "~/utils/api";
 
@@ -67,7 +66,7 @@ export default function ProjectsView() {
   );
 
   return (
-    <Dashboard>
+    <>
       <Head>
         <title>مدیریت پروژه‌ها و مایلستون‌ها | Parch Kanban</title>
       </Head>
@@ -141,6 +140,6 @@ export default function ProjectsView() {
           ))}
         </div>
       </div>
-    </Dashboard>
+    </>
   );
 }

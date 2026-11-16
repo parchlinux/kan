@@ -9,7 +9,6 @@ import {
   HiOutlineGlobeAlt,
   HiOutlineSparkles,
 } from "react-icons/hi2";
-import Dashboard from "~/components/Dashboard";
 import { useWorkspace } from "~/providers/workspace";
 import { api } from "~/utils/api";
 
@@ -88,7 +87,7 @@ export default function TeamsView() {
   );
 
   return (
-    <Dashboard>
+    <>
       <Head>
         <title>تیم‌ها و گروه‌های تخصصی پارچ | Parch Kanban</title>
       </Head>
@@ -153,6 +152,6 @@ export default function TeamsView() {
           ))}
         </div>
       </div>
-    </Dashboard>
+    </>
   );
 }
