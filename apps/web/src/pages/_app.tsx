@@ -16,6 +16,7 @@ import { KeyboardShortcutProvider } from "~/providers/keyboard-shortcuts";
 import { LinguiProviderWrapper } from "~/providers/lingui";
 import { ModalProvider } from "~/providers/modal";
 import { PopupProvider } from "~/providers/popup";
+import { WhatsNewModal } from "~/components/WhatsNewModal";
 import { api } from "~/utils/api";
 
 export const metadata = {
@@ -78,6 +79,7 @@ const MyApp: AppType = ({ Component, pageProps }: AppPropsWithLayout) => {
       <main className="font-sans">
         <KeyboardShortcutProvider>
           <LinguiProviderWrapper>
+            <WhatsNewModal />
             <FontSizeProvider>
               <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
                 <ModalProvider>

@@ -14,9 +14,11 @@ import { permissionRouter } from "./routers/permission";
 import { userRouter } from "./routers/user";
 import { webhookRouter } from "./routers/webhook";
 import { workspaceRouter } from "./routers/workspace";
+import { adminRouter } from "./routers/admin";
 import { createTRPCRouter } from "./trpc";
 
 export const appRouter = createTRPCRouter({
+  admin: adminRouter,
   attachment: attachmentRouter,
   board: boardRouter,
   boardMember: boardMemberRouter,

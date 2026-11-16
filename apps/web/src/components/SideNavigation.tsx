@@ -7,7 +7,14 @@ import { useLingui } from "@lingui/react";
 import { env } from "next-runtime-env";
 import { useTheme } from "next-themes";
 import { useEffect, useMemo, useState } from "react";
-import { HiBolt } from "react-icons/hi2";
+import {
+  HiBolt,
+  HiOutlineFolder,
+  HiOutlineUserGroup,
+  HiOutlineShieldCheck,
+  HiOutlineSparkles,
+} from "react-icons/hi2";
+import { WhatsNewModal } from "~/components/WhatsNewModal";
 import {
   TbLayoutSidebarLeftCollapse,
   TbLayoutSidebarLeftExpand,
@@ -54,6 +61,7 @@ export default function SideNavigation({
   const { workspace } = useWorkspace();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isInitialised, setIsInitialised] = useState(false);
+  const [showWhatsNew, setShowWhatsNew] = useState(false);
 
   const { data: workspaceData } = api.workspace.byId.useQuery(
     { workspacePublicId: workspace.publicId },
@@ -163,6 +171,10 @@ export default function SideNavigation({
           isCollapsed && "md:w-auto",
         )}
       >
+        <WhatsNewModal
+          forceOpen={showWhatsNew}
+          onClose={() => setShowWhatsNew(false)}
+        />
         <div>
           <div className="hidden h-[45px] items-center justify-between pb-3 md:flex">
             {!isCollapsed ? (
@@ -227,6 +239,76 @@ export default function SideNavigation({
               </li>
             ))}
           </ul>
+
+          {/* Parch Studio Section */}
+          <div className="my-2 border-t border-light-200 dark:border-dark-300 pt-2">
+            {!isCollapsed && (
+              <span className="px-2 text-[10px] font-bold uppercase tracking-wider text-light-600 dark:text-dark-600">
+                استودیو پارچ
+              </span>
+            )}
+            <ul role="list" className="mt-1 space-y-1">
+              <li>
+                <Link
+                  href="/projects"
+                  className={twMerge(
+                    "flex items-center gap-2 rounded-md px-2 py-1.5 text-xs font-medium text-light-800 hover:bg-light-200 hover:text-neutral-900 dark:text-dark-800 dark:hover:bg-dark-200 dark:hover:text-dark-1000 transition-colors",
+                    router.pathname.startsWith("/projects") &&
+                      "bg-emerald-50 text-emerald-700 font-bold dark:bg-emerald-950/60 dark:text-emerald-300",
+                    isCollapsed && "justify-center px-1.5",
+                  )}
+                  title="پروژه‌ها و مایلستون‌ها"
+                >
+                  <HiOutlineFolder className="h-4 w-4 shrink-0 text-cyan-500" />
+                  {!isCollapsed && <span>پروژه‌ها و مایلستون‌ها</span>}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/teams"
+                  className={twMerge(
+                    "flex items-center gap-2 rounded-md px-2 py-1.5 text-xs font-medium text-light-800 hover:bg-light-200 hover:text-neutral-900 dark:text-dark-800 dark:hover:bg-dark-200 dark:hover:text-dark-1000 transition-colors",
+                    router.pathname.startsWith("/teams") &&
+                      "bg-emerald-50 text-emerald-700 font-bold dark:bg-emerald-950/60 dark:text-emerald-300",
+                    isCollapsed && "justify-center px-1.5",
+                  )}
+                  title="تیم‌های تخصصی"
+                >
+                  <HiOutlineUserGroup className="h-4 w-4 shrink-0 text-purple-500" />
+                  {!isCollapsed && <span>تیم‌های تخصصی</span>}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/admin"
+                  className={twMerge(
+                    "flex items-center gap-2 rounded-md px-2 py-1.5 text-xs font-medium text-light-800 hover:bg-light-200 hover:text-neutral-900 dark:text-dark-800 dark:hover:bg-dark-200 dark:hover:text-dark-1000 transition-colors",
+                    router.pathname.startsWith("/admin") &&
+                      "bg-emerald-50 text-emerald-700 font-bold dark:bg-emerald-950/60 dark:text-emerald-300",
+                    isCollapsed && "justify-center px-1.5",
+                  )}
+                  title="اتاق فرمان و پنل مدیریت"
+                >
+                  <HiOutlineShieldCheck className="h-4 w-4 shrink-0 text-emerald-500" />
+                  {!isCollapsed && <span>اتاق فرمان لید</span>}
+                </Link>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => setShowWhatsNew(true)}
+                  className={twMerge(
+                    "w-full flex items-center gap-2 rounded-md px-2 py-1.5 text-xs font-medium text-light-800 hover:bg-light-200 hover:text-neutral-900 dark:text-dark-800 dark:hover:bg-dark-200 dark:hover:text-dark-1000 transition-colors",
+                    isCollapsed && "justify-center px-1.5",
+                  )}
+                  title="تغییرات اخیر"
+                >
+                  <HiOutlineSparkles className="h-4 w-4 shrink-0 text-amber-500" />
+                  {!isCollapsed && <span>تغییرات اخیر</span>}
+                </button>
+              </li>
+            </ul>
+          </div>
         </div>
 
         <div className="space-y-2">
