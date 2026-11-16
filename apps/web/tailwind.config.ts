@@ -11,7 +11,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-geist-sans)", ...fontFamily.sans],
+        sans: ["Estedad", "var(--font-geist-sans)", ...fontFamily.sans],
         mono: fontFamily.mono,
       },
     },

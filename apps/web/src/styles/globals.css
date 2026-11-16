@@ -30,6 +30,12 @@ html {
   font-size: 14px;
 }
 
+html[dir="rtl"],
+html[lang="fa"],
+body[dir="rtl"] {
+  font-family: "Estedad", system-ui, -apple-system, sans-serif !important;
+}
+
 /* BiDi (Bidirectional) Text Support for Persian, Arabic, and mixed text */
 [dir="auto"],
 input:not([type="password"]):not([type="email"]):not([type="url"]):not([type="number"]),

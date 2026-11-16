@@ -69,6 +69,10 @@ export function LinguiProviderWrapper({
     } else if (isHydrated) {
       localStorage.setItem("locale", locale);
     }
+    if (typeof document !== "undefined") {
+      document.documentElement.lang = locale;
+      document.documentElement.dir = locale === "fa" ? "rtl" : "ltr";
+    }
   }, [locale, isHydrated]);
 
   return (
