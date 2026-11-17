@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   HiOutlineSparkles,
   HiOutlineLanguage,
@@ -21,7 +22,12 @@ const BASE_STORAGE_KEY = "parch_whats_new_seen_v3";
 
 export function WhatsNewModal({ forceOpen = false, onClose }: WhatsNewModalProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { data: session } = authClient.useSession();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (forceOpen) {
@@ -51,7 +57,7 @@ export function WhatsNewModal({ forceOpen = false, onClose }: WhatsNewModalProps
     if (onClose) onClose();
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
   const features = [
     {
@@ -98,8 +104,8 @@ export function WhatsNewModal({ forceOpen = false, onClose }: WhatsNewModalProps
     },
   ];
 
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-fade-in">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-fade-in" dir="rtl">
       <div className="relative flex max-h-[90vh] w-full max-w-2xl flex-col rounded-2xl border border-light-300 bg-white shadow-2xl dark:border-dark-400 dark:bg-dark-100 overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-light-200 bg-light-50/70 px-6 py-4 dark:border-dark-300 dark:bg-dark-200/50">
@@ -169,6 +175,7 @@ export function WhatsNewModal({ forceOpen = false, onClose }: WhatsNewModalProps
           </Button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

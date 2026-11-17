@@ -65,7 +65,7 @@ export function QuickFilterBar({
   onOpenReleaseNotes,
 }: QuickFilterBarProps) {
   return (
-    <div className="z-10 flex flex-wrap items-center justify-between gap-2 border-b border-light-200/80 bg-light-50/60 px-6 py-2.5 backdrop-blur-sm dark:border-dark-300 dark:bg-dark-100/50 md:px-8">
+    <div className="relative z-10 flex flex-wrap items-center justify-between gap-2 border-b border-light-200/80 bg-light-50/60 px-6 py-2.5 backdrop-blur-sm dark:border-dark-300 dark:bg-dark-100/50 md:px-8">
       {/* Left side: Filter chips */}
       <div className="flex flex-wrap items-center gap-1.5 overflow-x-auto py-0.5">
         {/* My Cards Toggle */}

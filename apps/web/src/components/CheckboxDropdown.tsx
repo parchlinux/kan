@@ -168,8 +168,10 @@ export default function CheckboxDropdown({
         >
           <Menu.Items
             className={twMerge(
-              "absolute top-full z-50 mt-1 w-56 origin-top-left rounded-md border-[1px] border-light-200 bg-light-50 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:border-dark-500 dark:bg-dark-200",
-              position === "left" ? "left-0" : "right-0",
+              "absolute top-full z-[150] mt-1 w-56 rounded-md border-[1px] border-light-200 bg-light-50 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:border-dark-500 dark:bg-dark-200",
+              position === "left"
+                ? "ltr:left-0 rtl:right-0 ltr:origin-top-left rtl:origin-top-right"
+                : "ltr:right-0 rtl:left-0 ltr:origin-top-right rtl:origin-top-left",
             )}
           >
             <div className="max-h-[350px] overflow-y-auto p-1">

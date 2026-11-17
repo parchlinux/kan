@@ -25,7 +25,7 @@ export default function Dropdown({
   menuGap?: "sm" | "md";
 }) {
   return (
-    <Menu as="div" className="relative inline-block text-left">
+    <Menu as="div" className="relative inline-block text-start">
       <div>
         <Menu.Button
           disabled={disabled}
@@ -46,7 +46,7 @@ export default function Dropdown({
         leaveTo="transform opacity-0 scale-95"
       >
         <Menu.Items
-          className={`absolute right-0 isolate z-[100] ${menuGapClass[menuGap]} w-56 origin-top-right rounded-md border border-light-200 bg-white p-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:border-dark-400 dark:bg-dark-300`}
+          className={`absolute ltr:right-0 rtl:left-0 isolate z-[150] ${menuGapClass[menuGap]} w-56 origin-top-right rtl:origin-top-left rounded-md border border-light-200 bg-white p-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:border-dark-400 dark:bg-dark-300`}
         >
           <div className="flex flex-col">
             {items.map((item) => (
@@ -54,7 +54,7 @@ export default function Dropdown({
                 <button
                   onClick={item.action}
                   disabled={item.disabled ?? !item.action}
-                  className="flex w-auto items-center gap-2 rounded-[5px] px-2.5 py-1.5 text-left text-sm text-neutral-900 hover:bg-light-200 disabled:cursor-not-allowed disabled:opacity-60 dark:text-dark-950 dark:hover:bg-dark-400"
+                  className="flex w-full items-center gap-2 rounded-[5px] px-2.5 py-1.5 text-start text-sm text-neutral-900 hover:bg-light-200 disabled:cursor-not-allowed disabled:opacity-60 dark:text-dark-950 dark:hover:bg-dark-400"
                 >
                   {item.icon}
                   {item.label}

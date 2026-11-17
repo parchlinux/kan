@@ -145,7 +145,7 @@ export default function List({
           : "border-light-400 bg-light-300 dark:border-dark-300 dark:bg-dark-100"
       } ${canDrag ? (isDragging ? "cursor-grabbing" : "cursor-grab") : ""}`}
     >
-      <div className="mb-2 flex justify-between">
+      <div className="relative z-20 mb-2 flex justify-between">
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="w-full focus-visible:outline-none"
@@ -231,7 +231,7 @@ export default function List({
             }
 
             return (
-              <div className="relative mr-1 inline-block">
+              <div className="relative z-30 mr-1 inline-block">
                 <Dropdown items={dropdownItems} ariaLabel={t`List options`}>
                   <HiEllipsisHorizontal className="h-5 w-5 text-dark-900" />
                 </Dropdown>
