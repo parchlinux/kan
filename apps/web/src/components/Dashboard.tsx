@@ -224,7 +224,9 @@ export default function Dashboard({
         <div className="flex h-[calc(100dvh-4.5rem)] min-h-0 w-full md:h-[calc(100dvh-1.5rem)]">
           <div
             ref={sideNavRef}
-            className={`fixed top-12 z-40 h-[calc(100dvh-3rem)] w-[calc(100vw-1.5rem)] transform transition-transform duration-300 ease-in-out md:relative md:top-0 md:h-full md:w-auto md:translate-x-0 ${isSideNavOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"} `}
+            className={`fixed top-12 ltr:left-0 rtl:right-0 z-40 h-[calc(100dvh-3rem)] w-[calc(100vw-1.5rem)] max-w-xs transform transition-transform duration-300 ease-in-out md:relative md:top-0 md:h-full md:w-auto md:translate-x-0 ${
+              isSideNavOpen ? "!translate-x-0" : "ltr:-translate-x-full rtl:translate-x-full md:translate-x-0"
+            }`}
           >
             <SideNavigation
               user={{
@@ -239,23 +241,25 @@ export default function Dashboard({
 
           <div className="relative h-full min-h-0 w-full overflow-hidden md:rounded-lg md:border md:border-light-300 md:bg-light-50 md:dark:border-dark-300 md:dark:bg-dark-50">
             <div className="relative flex h-full min-h-0 w-full overflow-hidden">
-              <div className="h-full w-full overflow-y-auto">{children}</div>
+              <div className="h-full min-w-0 flex-1 overflow-y-auto">{children}</div>
 
               {/* Mobile Right Panel */}
               {hasRightPanel && rightPanel && (
                 <div
                   ref={rightPanelRef}
-                  className={`fixed right-0 top-12 z-40 h-[calc(100dvh-3rem)] w-80 transform border-l border-light-300 bg-light-200 transition-transform duration-300 ease-in-out dark:border-dark-300 dark:bg-dark-100 md:hidden ${
-                    isRightPanelOpen ? "translate-x-0" : "translate-x-full"
+                  className={`fixed ltr:right-0 rtl:left-0 top-12 z-40 h-[calc(100dvh-3rem)] w-80 max-w-[calc(100vw-2rem)] transform border-light-300 bg-light-200 transition-transform duration-300 ease-in-out dark:border-dark-300 dark:bg-dark-100 ltr:border-l rtl:border-r md:hidden ${
+                    isRightPanelOpen
+                      ? "!translate-x-0"
+                      : "ltr:translate-x-full rtl:-translate-x-full"
                   }`}
                 >
-                  <div className="h-full">{rightPanel}</div>
+                  <div className="h-full overflow-y-auto">{rightPanel}</div>
                 </div>
               )}
 
               {/* Desktop Right Panel */}
               {hasRightPanel && rightPanel && (
-                <div className="hidden md:block">{rightPanel}</div>
+                <div className="hidden shrink-0 md:block">{rightPanel}</div>
               )}
             </div>
           </div>

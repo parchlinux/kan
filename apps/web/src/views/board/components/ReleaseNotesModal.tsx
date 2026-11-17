@@ -126,7 +126,7 @@ export function ReleaseNotesModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-fade-in">
       <div className="relative flex max-h-[85vh] w-full max-w-2xl flex-col rounded-xl border border-light-300 bg-white shadow-2xl dark:border-dark-400 dark:bg-dark-100">
         <div className="flex items-center justify-between border-b border-light-200 px-6 py-4 dark:border-dark-300">
           <div className="flex items-center gap-2">

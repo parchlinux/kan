@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { t } from "@lingui/core/macro";
 import {
   HiOutlineSparkles,
   HiOutlineLanguage,
@@ -10,6 +9,7 @@ import {
   HiXMark,
   HiCheck,
 } from "react-icons/hi2";
+import { authClient } from "@kan/auth/client";
 import Button from "~/components/Button";
 
 interface WhatsNewModalProps {
@@ -17,24 +17,36 @@ interface WhatsNewModalProps {
   onClose?: () => void;
 }
 
-const STORAGE_KEY = "parch_kanban_whats_new_seen_v2";
+const BASE_STORAGE_KEY = "parch_whats_new_seen_v3";
 
 export function WhatsNewModal({ forceOpen = false, onClose }: WhatsNewModalProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const { data: session } = authClient.useSession();
 
   useEffect(() => {
     if (forceOpen) {
       setIsOpen(true);
       return;
     }
-    const hasSeen = localStorage.getItem(STORAGE_KEY);
+
+    // Only open automatically AFTER user is logged in
+    if (!session?.user?.id) {
+      setIsOpen(false);
+      return;
+    }
+
+    const storageKey = `${BASE_STORAGE_KEY}_${session.user.id}`;
+    const hasSeen = localStorage.getItem(storageKey);
     if (!hasSeen) {
       setIsOpen(true);
     }
-  }, [forceOpen]);
+  }, [forceOpen, session?.user?.id]);
 
   const handleClose = () => {
-    localStorage.setItem(STORAGE_KEY, "true");
+    if (session?.user?.id) {
+      const storageKey = `${BASE_STORAGE_KEY}_${session.user.id}`;
+      localStorage.setItem(storageKey, "true");
+    }
     setIsOpen(false);
     if (onClose) onClose();
   };
@@ -44,7 +56,7 @@ export function WhatsNewModal({ forceOpen = false, onClose }: WhatsNewModalProps
   const features = [
     {
       icon: HiOutlineLanguage,
-      title: "پشتیبانی کامل از زبان فارسی و راست‌به‌چپ (RTL)",
+      title: "پشتیبانی کامل از زبان فارسی و راست به چپ (RTL)",
       desc: "ترجمه روان تمام بخش‌ها، فرم‌ها، تنظیمات و تاریخچه فعالیت‌ها به همراه چینش طبیعی متون و المان‌ها.",
       tag: "بومی‌سازی",
       color: "text-emerald-500 bg-emerald-50 dark:bg-emerald-950/50 border-emerald-200 dark:border-emerald-800",
@@ -52,7 +64,7 @@ export function WhatsNewModal({ forceOpen = false, onClose }: WhatsNewModalProps
     {
       icon: HiOutlineSparkles,
       title: "فونت رسمی و زیبای استعداد (Estedad)",
-      desc: "تنظیم فونت استعداد به عنوان فونت پیش‌فرض کل سیستم بدون نیاز به اتصال اینترنت برای سرعت لود حداکثری.",
+      desc: "تنظیم فونت استعداد به عنوان فونت پیش‌فرض کل سیستم بدون نیاز به اینترنت برای سرعت لود بالا.",
       tag: "تایپوگرافی",
       color: "text-blue-500 bg-blue-50 dark:bg-blue-950/50 border-blue-200 dark:border-blue-800",
     },
@@ -66,7 +78,7 @@ export function WhatsNewModal({ forceOpen = false, onClose }: WhatsNewModalProps
     {
       icon: HiOutlineAdjustmentsHorizontal,
       title: "فیلترهای پیشرفته مهندسی پارچ",
-      desc: "فیلتر فوری بر اساس معماری (x86_64 و aarch64)، محیط دسکتاپ (Hyprland, KDE, GNOME) و باگ‌های مسدودکننده.",
+      desc: "فیلتر بر اساس معماری (x86_64 و aarch64)، محیط دسکتاپ (Hyprland, KDE, GNOME) و باگ‌های مسدودکننده.",
       tag: "مهندسی",
       color: "text-amber-500 bg-amber-50 dark:bg-amber-950/50 border-amber-200 dark:border-amber-800",
     },
@@ -87,7 +99,7 @@ export function WhatsNewModal({ forceOpen = false, onClose }: WhatsNewModalProps
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-fade-in">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-fade-in">
       <div className="relative flex max-h-[90vh] w-full max-w-2xl flex-col rounded-2xl border border-light-300 bg-white shadow-2xl dark:border-dark-400 dark:bg-dark-100 overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-light-200 bg-light-50/70 px-6 py-4 dark:border-dark-300 dark:bg-dark-200/50">
@@ -147,7 +159,7 @@ export function WhatsNewModal({ forceOpen = false, onClose }: WhatsNewModalProps
         {/* Footer */}
         <div className="flex items-center justify-between border-t border-light-200 bg-light-50/50 px-6 py-4 dark:border-dark-300 dark:bg-dark-200/30">
           <span className="text-[11px] text-light-600 dark:text-dark-600">
-            توسعه‌یافته با افتخار برای جامعه پارچ‌لینوکس
+            توسعه‌یافته برای جامعه پارچ‌لینوکس
           </span>
           <Button onClick={handleClose}>
             <span className="flex items-center gap-1.5 px-3">
